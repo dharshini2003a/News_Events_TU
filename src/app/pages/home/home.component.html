@@ -1,0 +1,53 @@
+<div class="container page-content">
+  <div class="quote-banner">
+    <blockquote>
+      "Intelligence and capability are not enough. There must be the joy of doing something
+      beautiful."
+      <cite>— Dr. G. Venkataswamy</cite>
+    </blockquote>
+    <img src="assets/images/gv3.jpg" alt="Aravind Eye Care campus" />
+  </div>
+
+  <div class="home-grid">
+    <aside class="quick-links">
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a href="#">Awards &amp; Accolades</a></li>
+        <li><a href="#">Special Events</a></li>
+        <li><a href="#">CME held at Aravind Eye Hospital</a></li>
+        <li><a href="#">Conferences Attended Elsewhere</a></li>
+        <li><a routerLink="/current-news">News and Events</a></li>
+        <li><a href="#">Human Resource Development</a></li>
+        <li><a href="#">LAICO Happenings</a></li>
+        <li><a href="#">Internal Capacity Building</a></li>
+        <li><a href="#">Training Programmes</a></li>
+        <li><a href="#">Publications</a></li>
+        <li><a href="#">Monthly Patient Statistics</a></li>
+        <li><a href="#">Aurolab News</a></li>
+      </ul>
+    </aside>
+
+    <div>
+      <h3 class="section-title">Latest Highlights</h3>
+      <article class="highlight-feature">
+        <img [src]="latest.thumbnail" [alt]="latest.title" />
+        <div class="hf-body">
+          <h2>{{ latest.title }}</h2>
+          <p>{{ latest.shortDescription }}</p>
+          <a class="btn-readmore" [routerLink]="['/current-news', latest.id]">Read More</a>
+        </div>
+      </article>
+
+      <div class="thumb-strip">
+        @for (n of strip; track n.id) {
+          <a [routerLink]="['/current-news', n.id]">
+            <figure>
+              <img [src]="n.thumbnail" [alt]="n.title" loading="lazy" decoding="async" />
+              <figcaption>{{ n.title }}</figcaption>
+            </figure>
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+</div>

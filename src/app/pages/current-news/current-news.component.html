@@ -1,0 +1,122 @@
+<div class="container page-content">
+  <h1 class="section-title">Current News</h1>
+
+  <div class="news-toolbar">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search news..."
+        [(ngModel)]="query"
+        (ngModelChange)="onQueryChange()"
+      />
+      <span class="search-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+          <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </span>
+    </div>
+
+    <div class="sort-box">
+      <span class="sort-label">Sort By :</span>
+      <select [(ngModel)]="sortOrder">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+    </div>
+
+    <div class="sort-box">
+      <span class="sort-label">Year :</span>
+      <select [(ngModel)]="yearFilter" (ngModelChange)="onYearChange()">
+        @for (y of years; track y) {
+          <option [ngValue]="y">{{ y }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="sort-box">
+      <span class="sort-label">Place :</span>
+      <select [(ngModel)]="placeFilter" (ngModelChange)="onPlaceChange()">
+        @for (p of places; track p) {
+          <option [value]="p">{{ p }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="filter-tabs">
+    <a
+      routerLink="/current-news"
+      style="display:inline-block; padding:10px 20px; border-radius:20px; margin-right:10px; background-color:#152642; color:#fff; text-decoration:none; font-weight:600;"
+    >
+      Current News
+    </a>
+    <a
+      routerLink="/archives"
+      style="display:inline-block; padding:10px 20px; border-radius:20px; background-color:#dce6f4; color:#152642; text-decoration:none; font-weight:500;"
+    >
+      Archives
+    </a>
+  </div>
+
+  @if (activeTag) {
+    <div class="keyword-filter-status">
+      Showing news tagged <strong>#{{ hashtag(activeTag) }}</strong>
+      <button class="clear-keyword" (click)="handleTagClick(activeTag)">✕ Clear</button>
+    </div>
+  }
+
+  <div class="news-list">
+    @if (pageItems.length === 0) {
+      <p style="color: var(--ink-soft)">No news found for this filter.</p>
+    }
+    @for (n of pageItems; track n.id) {
+      <article class="news-row">
+        <img [src]="n.thumbnail" [alt]="n.title" loading="lazy" decoding="async" />
+        <div class="news-row-body">
+          <div class="news-row-heading">
+            <h3><a [routerLink]="['/current-news', n.id]">{{ n.title }}</a></h3>
+            <span class="news-row-date">{{ formatDate(n.date) }}</span>
+          </div>
+          <p>{{ n.shortDescription }}</p>
+          <div class="news-hashtags">
+            <button
+              type="button"
+              class="hashtag"
+              [class.active]="activeTag && activeTag.toLowerCase() === n.centre.toLowerCase()"
+              (click)="handleTagClick(n.centre)"
+            >
+              #{{ hashtag(n.centre) }}
+            </button>
+            <button
+              type="button"
+              class="hashtag"
+              [class.active]="activeTag && activeTag.toLowerCase() === n.category.toLowerCase()"
+              (click)="handleTagClick(n.category)"
+            >
+              #{{ hashtag(n.category) }}
+            </button>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (totalPages > 1) {
+    <div class="pagination">
+      @if (page > 1) {
+        <button (click)="prevPage()">«</button>
+      }
+      @for (p of pageNumbers; track $index) {
+        @if (p === '…') {
+          <span class="pagination-ellipsis">…</span>
+        } @else {
+          <button [class.active]="p === page" (click)="goToPage(p)">{{ p }}</button>
+        }
+      }
+      @if (page < totalPages) {
+        <button (click)="nextPage()">»</button>
+      }
+    </div>
+  }
+</div>

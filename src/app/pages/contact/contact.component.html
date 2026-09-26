@@ -1,0 +1,36 @@
+<div class="container page-content">
+  <h1 class="section-title">Contact</h1>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <h3>Get in touch</h3>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-field">
+          <label>Name</label>
+          <input type="text" placeholder="Your name" formControlName="name" />
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" placeholder="you@example.com" formControlName="email" />
+        </div>
+        <div class="form-field">
+          <label>Message</label>
+          <textarea rows="4" placeholder="Write your message..." formControlName="message"></textarea>
+        </div>
+        <button class="btn-primary" type="submit">Send Message</button>
+      </form>
+    </div>
+    <div class="contact-card">
+      <h3>Aravind Eye Care System</h3>
+      <p style="color: var(--ink-soft); font-size: 14px">
+        No. 1, Anna Nagar, Madurai, Tamil Nadu, India.
+        <br />
+        Phone: +91-452-435 6100 (dummy)
+        <br />
+        Email: news&#64;aravind.org (dummy)
+      </p>
+      <p style="color: var(--ink-soft); font-size: 14px">
+        For centre-specific enquiries, please reach out to the respective Aravind Eye Hospital branch.
+      </p>
+    </div>
+  </div>
+</div>

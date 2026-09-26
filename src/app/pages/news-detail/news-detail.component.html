@@ -1,0 +1,46 @@
+@if (!news) {
+  <div class="container page-content">
+    <p>News item not found.</p>
+    <a routerLink="/current-news">← Back to Current News</a>
+  </div>
+} @else {
+  <div class="container page-content">
+    <div class="breadcrumb">
+      <a routerLink="/">Home</a> &nbsp;›&nbsp;
+      <a routerLink="/current-news">Current News</a> &nbsp;›&nbsp; News Details
+    </div>
+
+    <h1 class="detail-title">{{ news.title }}</h1>
+    <div class="detail-meta">
+      <span>📅 {{ formatDate(news.date) }}</span>
+      <span>📍 {{ news.centre }}</span>
+      <span>🏷 {{ news.category }}</span>
+    </div>
+
+    <div class="detail-body">
+      @for (para of news.body; track $index) {
+        <p>{{ para }}</p>
+      }
+    </div>
+
+    <div class="detail-keywords">
+      <h4>Keywords / Tags</h4>
+      @for (k of news.keywords; track k) {
+        <a class="keyword-chip" [routerLink]="['/current-news']" [queryParams]="{ tag: k }">
+          #{{ hashtag(k) }}
+        </a>
+      }
+    </div>
+
+    @if (additionalPhotos.length > 0) {
+      <div class="detail-keywords" style="margin-top: 20px">
+        <h4>Photo Gallery</h4>
+        <app-photo-carousel [images]="additionalPhotos" [title]="news.title" />
+      </div>
+    }
+
+    <p style="margin-top: 30px">
+      <a routerLink="/current-news">← Back to Current News</a>
+    </p>
+  </div>
+}

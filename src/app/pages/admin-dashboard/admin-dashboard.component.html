@@ -1,0 +1,78 @@
+<div class="admin-shell">
+  <app-admin-sidebar active="dashboard" />
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <span></span>
+      <span class="admin-welcome">Welcome, Admin <span class="admin-avatar">👤</span></span>
+    </div>
+
+    <h1 class="section-title" style="margin-top: 0">Dashboard</h1>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-blue">📰</div>
+        <div>
+          <div class="lbl">Total News</div>
+          <div class="num">{{ newsList().length }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-green">✅</div>
+        <div>
+          <div class="lbl">Published News</div>
+          <div class="num">{{ newsList().length }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-orange">📋</div>
+        <div>
+          <div class="lbl">Drafts</div>
+          <div class="num">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-purple">🖼</div>
+        <div>
+          <div class="lbl">Total Images</div>
+          <div class="num">{{ totalImages }}</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-family: var(--serif); color: var(--navy)">Recent News</h3>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (n of visible; track n.id) {
+          <tr>
+            <td>{{ n.title }}</td>
+            <td>{{ formatDate(n.date) }}</td>
+            <td><span class="status-pill">Published</span></td>
+            <td>
+              <div class="admin-row-actions">
+                <button class="row-action edit" title="Edit" (click)="handleEdit(n.id)">✎</button>
+                <a class="row-action view" title="View" [routerLink]="['/current-news', n.id]" target="_blank">👁</a>
+                <button class="row-action delete" title="Delete" (click)="handleDelete(n.id)">🗑</button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (!showAll() && newsList().length > 5) {
+      <div style="text-align: right; margin-top: 16px">
+        <button class="btn-primary" style="width: auto; padding: 10px 22px" (click)="viewAll()">
+          View All News
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<div class="admin-shell">
+  <app-admin-sidebar active="gallery" />
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <span></span>
+      <span class="admin-welcome">Welcome, Admin <span class="admin-avatar">👤</span></span>
+    </div>
+
+    <h1 class="section-title" style="margin-top: 0">Gallery</h1>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-purple">🖼</div>
+        <div>
+          <div class="lbl">Total Photos</div>
+          <div class="num">{{ photos.length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gallery-album-grid">
+      @for (photo of photos; track photo.url + photo.title) {
+        <div class="gallery-album-card" (click)="view(photo)">
+          <div class="gallery-album-cover">
+            <img [src]="photo.url" [alt]="photo.title" loading="lazy" decoding="async" />
+          </div>
+          <div class="gallery-album-body">
+            <div class="gallery-album-title">{{ photo.title }}</div>
+            <div class="gallery-album-date">{{ photo.date }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (photos.length === 0) {
+      <p style="color: var(--ink-soft)">No images yet — add news/events with photos to see them here.</p>
+    }
+
+    @if (openPhoto(); as photo) {
+      <div class="lightbox-overlay" (click)="closePhoto()">
+        <button class="lightbox-close" (click)="closePhoto()" aria-label="Close">✕</button>
+        <div class="lightbox-body" (click)="$event.stopPropagation()">
+          <img [src]="photo.url" [alt]="photo.title" />
+          <div class="lightbox-caption">{{ photo.title }} · {{ photo.date }}</div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,237 @@
+<div class="admin-shell">
+  <app-admin-sidebar active="add-news" />
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <span></span>
+      <span class="admin-welcome">Welcome, Admin <span class="admin-avatar">👤</span></span>
+    </div>
+
+    <h1 class="section-title" style="margin-top: 0">
+      {{ editId !== null ? 'Edit News / Event' : 'Add News / Add Event' }}
+    </h1>
+
+    <div class="add-news-grid">
+      <div class="add-news-form">
+        <div class="form-field">
+          <label>Title *</label>
+          <input type="text" placeholder="Enter news/event title" [(ngModel)]="title" />
+        </div>
+
+        <div class="form-field-row">
+          <div class="form-field">
+            <label>Category *</label>
+            <select [(ngModel)]="category">
+              <option value="">Select Category</option>
+              @for (c of categoryOptions; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label>News / Event Type *</label>
+            <div class="type-toggle">
+              <label class="type-toggle-option" [class.active]="newsType === 'News'">
+                <input type="radio" name="newsType" value="News" [(ngModel)]="newsType" /> News
+              </label>
+              <label class="type-toggle-option" [class.active]="newsType === 'Event'">
+                <input type="radio" name="newsType" value="Event" [(ngModel)]="newsType" /> Event
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field-row">
+          <div class="form-field">
+            <label>{{ newsType === 'Event' ? 'Start Date *' : 'News Date *' }}</label>
+            <input type="date" [(ngModel)]="startDate" />
+          </div>
+          @if (newsType === 'Event') {
+            <div class="form-field">
+              <label>End Date *</label>
+              <input type="date" [(ngModel)]="endDate" />
+            </div>
+          }
+        </div>
+
+        <div class="form-field">
+          <label>Short Description</label>
+          <input type="text" placeholder="Enter short description" [(ngModel)]="shortDesc" />
+        </div>
+
+        <div class="form-field">
+          <label>Keywords / Tags</label>
+          <div class="tag-input-box">
+            @for (t of tags(); track t) {
+              <span class="tag-chip">
+                {{ t }} <button type="button" (click)="removeTag(t)">✕</button>
+              </span>
+            }
+            <input
+              type="text"
+              placeholder="Type and press enter..."
+              [(ngModel)]="tagInput"
+              (keydown)="addTag($event)"
+            />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>{{ newsType === 'Event' ? 'Event Details *' : 'News Details *' }}</label>
+          <div class="rich-toolbar">
+            <button type="button"><b>B</b></button>
+            <button type="button"><i>I</i></button>
+            <button type="button"><u>U</u></button>
+            <button type="button">☰</button>
+            <button type="button">≣</button>
+            <button type="button">⬛</button>
+            <button type="button">🔗</button>
+            <button type="button">🖼</button>
+            <button type="button">📎</button>
+            <button type="button">✎</button>
+            <button type="button">🔍</button>
+          </div>
+          <textarea rows="5" placeholder="Write full details here..." [(ngModel)]="details"></textarea>
+        </div>
+
+        <div class="form-field" style="max-width: 220px">
+          <label>Status</label>
+          <select [(ngModel)]="status">
+            <option>Published</option>
+            <option>Draft</option>
+          </select>
+        </div>
+
+        <div class="add-news-actions">
+          <button type="button" class="btn-secondary" (click)="handleSubmit('Draft')">Save as Draft</button>
+          <button
+            type="button"
+            class="btn-primary"
+            style="width: auto; padding: 11px 26px"
+            (click)="handleSubmit('Published')"
+          >
+            {{ editId !== null ? 'Update' : 'Publish' }} {{ newsType === 'Event' ? 'Event' : 'News' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="add-news-gallery">
+        <label>Cover Image / Thumbnail *</label>
+        <div
+          class="dropzone"
+          [class.drag-over]="coverDragOver()"
+          (dragover)="$event.preventDefault(); coverDragOver.set(true)"
+          (dragleave)="coverDragOver.set(false)"
+          (drop)="handleCoverDrop($event)"
+        >
+          @if (!coverImage()) {
+            <p>Drag &amp; Drop cover image here</p>
+            <p class="dz-or">or</p>
+            <button type="button" class="btn-primary" style="width: auto; padding: 9px 20px" (click)="browseCover()">
+              Browse Files
+            </button>
+            <p class="dz-hint">(JPG, PNG, WEBP · Max 10 MB — used as the thumbnail)</p>
+          } @else {
+            <div class="dz-preview" style="max-width: 220px; margin: 0 auto">
+              <img [src]="coverImage()!.url" [alt]="coverImage()!.name" />
+              <button type="button" (click)="removeCover()" aria-label="Remove cover image">✕</button>
+            </div>
+          }
+          <input
+            #coverInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            (change)="onCoverInputChange($event)"
+          />
+        </div>
+
+        <label style="margin-top: 22px; display: block">Photo Gallery</label>
+        <div
+          class="dropzone"
+          [class.drag-over]="galleryDragOver()"
+          (dragover)="$event.preventDefault(); galleryDragOver.set(true)"
+          (dragleave)="galleryDragOver.set(false)"
+          (drop)="handleGalleryDrop($event)"
+        >
+          <p>Drag &amp; Drop images here</p>
+          <p class="dz-or">or</p>
+          <button type="button" class="btn-primary" style="width: auto; padding: 9px 20px" (click)="browseGallery()">
+            + Upload Photos
+          </button>
+          <input
+            #galleryInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            hidden
+            (change)="onGalleryInputChange($event)"
+          />
+          <p class="dz-hint">(JPG, PNG, WEBP · Max 10 MB each)</p>
+        </div>
+
+        @if (galleryImages().length > 0) {
+          <div class="dz-preview-grid">
+            @for (img of galleryImages(); track img.id) {
+              <div class="dz-preview" [class.dz-preview-pickable]="activeGroupIndex() !== null">
+                <img
+                  [src]="img.url"
+                  [alt]="img.name"
+                  (click)="activeGroupIndex() !== null ? toggleImageInActiveGroup(img.id) : null"
+                />
+                @if (activeGroupIndex() !== null) {
+                  <span class="thumb-checkbox" [class.checked]="isImageInActiveGroup(img.id)">
+                    {{ isImageInActiveGroup(img.id) ? '✓' : '' }}
+                  </span>
+                } @else {
+                  <button type="button" (click)="removeGalleryImage(img.id)" aria-label="Remove image">✕</button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @if (newsType === 'Event' && galleryImages().length > 0) {
+          <label style="margin-top: 22px; display: block">Gallery Organization</label>
+          <div class="type-toggle">
+            <label class="type-toggle-option" [class.active]="galleryOrg === 'general'">
+              <input type="radio" name="galleryOrg" value="general" [(ngModel)]="galleryOrg" /> General Gallery
+            </label>
+            <label class="type-toggle-option" [class.active]="galleryOrg === 'byDate'">
+              <input type="radio" name="galleryOrg" value="byDate" [(ngModel)]="galleryOrg" /> Group Photos by Date
+            </label>
+          </div>
+
+          @if (galleryOrg === 'byDate') {
+            <div class="event-dates-box">
+              <label>Event Dates (Group by Date)</label>
+              <div class="event-date-add-row">
+                <input type="date" [(ngModel)]="newGroupDate" />
+                <button type="button" class="btn-secondary" style="width: auto; padding: 8px 16px" (click)="addDateGroup()">
+                  + Add Date
+                </button>
+              </div>
+
+              @if (dateGroups().length > 0) {
+                <div class="event-dates-list">
+                  @for (group of dateGroups(); track group.date; let i = $index) {
+                    <div class="event-date-row" [class.active]="activeGroupIndex() === i">
+                      <span>{{ group.date }} <em>({{ photoCount(group) }} photos)</em></span>
+                      <div class="admin-row-actions">
+                        <button class="row-action edit" title="Assign photos" (click)="toggleAssignMode(i)">✎</button>
+                        <button class="row-action delete" title="Remove date" (click)="removeDateGroup(i)">🗑</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+                @if (activeGroupIndex() !== null) {
+                  <p class="dz-hint">Click photos above to assign/unassign them to the selected date.</p>
+                }
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

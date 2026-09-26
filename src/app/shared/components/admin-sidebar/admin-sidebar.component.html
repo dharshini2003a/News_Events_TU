@@ -1,0 +1,19 @@
+<aside class="admin-sidebar">
+  <div class="as-title">Admin Panel</div>
+
+  <a routerLink="/admin/dashboard" class="as-link" [class.active]="active === 'dashboard'">
+    <span class="as-icon">🏠</span> Dashboard
+  </a>
+  <a routerLink="/admin/dashboard" class="as-link" [class.active]="active === 'all-news'">
+    <span class="as-icon">📰</span> All News
+  </a>
+  <a routerLink="/admin/add-news" class="as-link" [class.active]="active === 'add-news'">
+    <span class="as-icon">➕</span> Add News
+  </a>
+  <span class="as-link" [class.active]="active === 'drafts'">
+    <span class="as-icon">📋</span> Drafts
+  </span>
+  <a routerLink="/admin" class="as-link">
+    <span class="as-icon">↩</span> Logout
+  </a>
+</aside>

@@ -1,0 +1,44 @@
+<div class="admin-login-page">
+  <div class="admin-login-watermark">👁</div>
+  <div class="admin-login-wrap">
+    <div class="admin-login-card">
+      <div class="brand-eye">👁</div>
+      <div class="admin-login-brand">ARAVIND EYE CARE SYSTEM</div>
+      <div class="admin-login-tagline">
+        <span class="tl-news">news</span> <span class="tl-update">update</span>
+      </div>
+      <h2>Administrator Login</h2>
+      <form [formGroup]="form" (ngSubmit)="handleLogin()">
+        <div class="form-field icon-field" style="text-align: left">
+          <label>User Name</label>
+          <div class="icon-input">
+            <span class="field-icon">👤</span>
+            <input type="text" placeholder="Enter user name" formControlName="username" />
+          </div>
+        </div>
+        <div class="form-field icon-field" style="text-align: left">
+          <label>Password</label>
+          <div class="icon-input">
+            <span class="field-icon">🔒</span>
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              placeholder="Enter password"
+              formControlName="password"
+            />
+            <button
+              type="button"
+              class="field-icon-toggle"
+              (click)="togglePassword()"
+              aria-label="Toggle password visibility"
+            >
+              {{ showPassword() ? '🙈' : '👁' }}
+            </button>
+          </div>
+        </div>
+        <button class="btn-primary" type="submit">Login</button>
+      </form>
+      <p class="demo-note">Demo only — any credentials will log you in.</p>
+    </div>
+  </div>
+  <footer class="site-footer admin-login-footer">© 2012 👁 ARAVIND EYE CARE SYSTEM</footer>
+</div>

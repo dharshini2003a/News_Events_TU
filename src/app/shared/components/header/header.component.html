@@ -1,0 +1,37 @@
+<header class="site-header">
+  <div class="container header-top">
+    <div class="brand">
+      <span class="brand-eye">👁</span>
+      <span class="brand-name">ARAVIND EYE CARE SYSTEM</span>
+      <span class="brand-tagline">news <em>update</em></span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div class="header-date">{{ today }}</div>
+      <a
+        routerLink="/admin"
+        style="font-size:13px; color: var(--navy); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 14px;"
+      >
+        Admin Login
+      </a>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <ul>
+      <li>
+        <a routerLink="/thingal-udhayam" routerLinkActive="active">Thingal Udhayam</a>
+      </li>
+      <li>
+        <a routerLink="/current-news" routerLinkActive="active">Current News</a>
+      </li>
+      <li>
+        <a routerLink="/archives" routerLinkActive="active">Archives</a>
+      </li>
+      <li>
+        <a routerLink="/contact" routerLinkActive="active">Contact</a>
+      </li>
+      <li>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      </li>
+    </ul>
+  </nav>
+</header>

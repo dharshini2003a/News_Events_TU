@@ -1,0 +1,54 @@
+@if (images.length > 0) {
+  <div class="gallery-pager">
+    @if (pageCount > 1) {
+      <button class="gallery-arrow gallery-prev" (click)="prevPage()" aria-label="Previous photos">←</button>
+    }
+
+    <div class="gallery-grid">
+      @for (src of visible; track $index) {
+        <img [src]="src" [alt]="title + ' photo ' + (startIndex + $index + 1)" (click)="openLightbox(startIndex + $index)" loading="lazy" decoding="async" />
+      }
+    </div>
+
+    @if (pageCount > 1) {
+      <button class="gallery-arrow gallery-next" (click)="nextPage()" aria-label="Next photos">→</button>
+    }
+  </div>
+
+  @if (pageCount > 1) {
+    <div class="gallery-dots">
+      @for (i of pageIndexes; track i) {
+        <button
+          class="gallery-dot"
+          [class.active]="i === page()"
+          (click)="goToPage(i)"
+          [attr.aria-label]="'Go to photo set ' + (i + 1)"
+        ></button>
+      }
+    </div>
+  }
+
+  @if (openAt() !== null) {
+    <div class="lightbox-overlay" (click)="closeLightbox()">
+      <button class="lightbox-close" (click)="closeLightbox()" aria-label="Close">✕</button>
+
+      @if (images.length > 1) {
+        <button class="lightbox-arrow lightbox-prev" (click)="prevPhoto($event)" aria-label="Previous photo">←</button>
+      }
+
+      <div class="lightbox-body" (click)="$event.stopPropagation()">
+        <img [src]="images[activeLightboxIndex()]" [alt]="title + ' photo ' + (activeLightboxIndex() + 1)" />
+        <div class="lightbox-caption">
+          {{ title }}
+          @if (images.length > 1) {
+            <span class="lightbox-count"> · {{ activeLightboxIndex() + 1 }} / {{ images.length }}</span>
+          }
+        </div>
+      </div>
+
+      @if (images.length > 1) {
+        <button class="lightbox-arrow lightbox-next" (click)="nextPhoto($event)" aria-label="Next photo">→</button>
+      }
+    </div>
+  }
+}
