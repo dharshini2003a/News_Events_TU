@@ -1,14 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NewsItem, newsList, categories, centres, formatDate } from '../models/news.data';
 
-/**
- * NewsService — Phase 1 (frontend-only) mode.
- * Holds the demo data in memory for the lifetime of the browser tab
- * (this service is a singleton — `providedIn: 'root'`). addNews/updateNews
- * mutate this in-memory list so the Dashboard reflects changes made in
- * Add News immediately, without a backend. A page refresh resets to the
- * original static data — that's expected until Phase 2 wires up the API.
- */
 @Injectable({ providedIn: 'root' })
 export class NewsService {
   private readonly allNews: NewsItem[] = [...newsList];

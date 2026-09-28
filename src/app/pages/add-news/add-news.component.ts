@@ -23,10 +23,8 @@ export class AddNewsComponent implements OnInit {
 
   categoryOptions: string[];
 
-  // When set, we're editing this existing news item instead of creating one.
   editId: number | null = null;
 
-  // Basic fields
   title = '';
   category = '';
   newsType: 'News' | 'Event' = 'News';
@@ -38,15 +36,12 @@ export class AddNewsComponent implements OnInit {
   details = '';
   status = 'Published';
 
-  // Cover image (single) — this becomes the news/event thumbnail.
   coverImage = signal<ImagePreview | null>(null);
   coverDragOver = signal(false);
 
-  // Photo gallery (multiple)
   galleryImages = signal<ImagePreview[]>([]);
   galleryDragOver = signal(false);
 
-  // Gallery organization (only meaningful for Event type)
   galleryOrg: 'general' | 'byDate' = 'general';
   dateGroups = signal<EventDateGroup[]>([]);
   newGroupDate = '';
@@ -99,7 +94,6 @@ export class AddNewsComponent implements OnInit {
     }
   }
 
-  // ---------- Tags ----------
   addTag(e: KeyboardEvent): void {
     if ((e.key === 'Enter' || e.key === ',') && this.tagInput.trim()) {
       e.preventDefault();
@@ -115,7 +109,7 @@ export class AddNewsComponent implements OnInit {
     this.tags.update((t) => t.filter((x) => x !== tag));
   }
 
-  // ---------- Cover image ----------
+
   handleCoverFiles(fileList: FileList): void {
     const file = Array.from(fileList).find((f) => f.type.startsWith('image/'));
     if (!file) return;
@@ -145,7 +139,6 @@ export class AddNewsComponent implements OnInit {
     this.coverImage.set(null);
   }
 
-  // ---------- Photo gallery ----------
   handleGalleryFiles(fileList: FileList): void {
     const files = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
     const previews: ImagePreview[] = files.map((f) => ({
@@ -178,7 +171,6 @@ export class AddNewsComponent implements OnInit {
     );
   }
 
-  // ---------- Event date grouping ----------
   addDateGroup(): void {
     if (!this.newGroupDate) return;
     if (this.dateGroups().some((g) => g.date === this.newGroupDate)) {
@@ -213,7 +205,6 @@ export class AddNewsComponent implements OnInit {
           const has = g.photos.includes(imageId);
           return { ...g, photos: has ? g.photos.filter((x) => x !== imageId) : [...g.photos, imageId] };
         }
-        // A photo belongs to only one date — unassign it from any other group.
         return { ...g, photos: g.photos.filter((x) => x !== imageId) };
       })
     );
@@ -223,7 +214,7 @@ export class AddNewsComponent implements OnInit {
     return group.photos.length;
   }
 
-  // ---------- Submit ----------
+
   handleSubmit(status: 'Draft' | 'Published'): void {
     if (!this.title.trim()) {
       alert('Please enter a news title.');
