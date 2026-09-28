@@ -19,14 +19,15 @@ import { FooterComponent } from './shared/components/footer/footer.component';
   `,
 })
 export class AppComponent {
-  // Tracks whether we're under /admin, matching the React app's logic
-  // of hiding the public Header/Footer on admin routes.
+  // Header/Footer show on every public page, INCLUDING the admin login
+  // page (/admin) — only the inner admin pages (/admin/dashboard,
+  // /admin/add-news, ...) use their own sidebar shell instead.
   isAdminRoute = signal(false);
 
   constructor(private router: Router) {
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {
       const url = (e as NavigationEnd).urlAfterRedirects;
-      this.isAdminRoute.set(url.startsWith('/admin'));
+      this.isAdminRoute.set(url.startsWith('/admin/'));
       // Equivalent to the React app's ScrollToTop component.
       window.scrollTo(0, 0);
     });
