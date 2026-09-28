@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NewsItem } from '../../core/models/news.data';
 import { NewsService } from '../../core/services/news.service';
@@ -13,9 +13,25 @@ export class HomeComponent {
   latest: NewsItem;
   strip: NewsItem[];
 
+  // Quick Links drawer is hidden until the user opens it.
+  quickOpen = signal(false);
+
   constructor(private newsService: NewsService) {
     const all = this.newsService.getAll();
     this.latest = all[0];
     this.strip = all.slice(1, 5);
+  }
+
+  openQuickLinks(): void {
+    this.quickOpen.set(true);
+  }
+
+  closeQuickLinks(): void {
+    this.quickOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeQuickLinks();
   }
 }

@@ -8,25 +8,36 @@
     <img src="assets/images/gv3.jpg" alt="Aravind Eye Care campus" />
   </div>
 
-  <div class="home-grid">
-    <aside class="quick-links">
-      <h3>Quick Links</h3>
-      <ul>
-        <li><a href="#">Awards &amp; Accolades</a></li>
-        <li><a href="#">Special Events</a></li>
-        <li><a href="#">CME held at Aravind Eye Hospital</a></li>
-        <li><a href="#">Conferences Attended Elsewhere</a></li>
-        <li><a routerLink="/current-news">News and Events</a></li>
-        <li><a href="#">Human Resource Development</a></li>
-        <li><a href="#">LAICO Happenings</a></li>
-        <li><a href="#">Internal Capacity Building</a></li>
-        <li><a href="#">Training Programmes</a></li>
-        <li><a href="#">Publications</a></li>
-        <li><a href="#">Monthly Patient Statistics</a></li>
-        <li><a href="#">Aurolab News</a></li>
-      </ul>
-    </aside>
+  <!-- Quick Links: hidden by default, opens from the left edge tab -->
+  <button type="button" class="ql-tab" (click)="openQuickLinks()" aria-label="Open Quick Links">
+    Quick Links
+  </button>
 
+  @if (quickOpen()) {
+    <div class="ql-backdrop" (click)="closeQuickLinks()"></div>
+  }
+  <aside class="quick-links ql-drawer" [class.open]="quickOpen()" [attr.aria-hidden]="!quickOpen()">
+    <h3>
+      Quick Links
+      <button type="button" class="ql-close" (click)="closeQuickLinks()" aria-label="Close Quick Links">✕</button>
+    </h3>
+    <ul>
+      <li><a href="#" (click)="closeQuickLinks()">Awards &amp; Accolades</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">Special Events</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">CME held at Aravind Eye Hospital</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">Conferences Attended Elsewhere</a></li>
+      <li><a routerLink="/current-news" (click)="closeQuickLinks()">News and Events</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">Human Resource Development</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">LAICO Happenings</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">Internal Capacity Building</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">Training Programmes</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">Publications</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">Monthly Patient Statistics</a></li>
+      <li><a href="#" (click)="closeQuickLinks()">Aurolab News</a></li>
+    </ul>
+  </aside>
+
+  <div class="home-grid">
     <div>
       <h3 class="section-title">Latest Highlights</h3>
       <article class="highlight-feature">
