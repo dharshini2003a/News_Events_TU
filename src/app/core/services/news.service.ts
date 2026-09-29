@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NewsItem, newsList, categories, centres, formatDate } from '../models/news.data';
+import { NewsItem, KeywordGroup, newsList, categories, centres, keywordGroups, formatDate } from '../models/news.data';
 
 @Injectable({ providedIn: 'root' })
 export class NewsService {
@@ -35,6 +35,10 @@ export class NewsService {
 
   getCategories(): string[] {
     return categories;
+  }
+
+  getKeywordGroups(): KeywordGroup[] {
+    return keywordGroups;
   }
 
   getCentres(): string[] {

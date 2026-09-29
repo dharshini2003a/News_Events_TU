@@ -32,10 +32,10 @@
             <label>News / Event Type *</label>
             <div class="type-toggle">
               <label class="type-toggle-option" [class.active]="newsType === 'News'">
-                <input type="radio" name="newsType" value="News" [(ngModel)]="newsType" /> News
+                <input type="radio" name="newsType" value="News" [(ngModel)]="newsType" /> 📰 News
               </label>
               <label class="type-toggle-option" [class.active]="newsType === 'Event'">
-                <input type="radio" name="newsType" value="Event" [(ngModel)]="newsType" /> Event
+                <input type="radio" name="newsType" value="Event" [(ngModel)]="newsType" /> 📅 Event
               </label>
             </div>
           </div>
@@ -59,39 +59,90 @@
           <input type="text" placeholder="Enter short description" [(ngModel)]="shortDesc" />
         </div>
 
-        <div class="form-field">
+        <div class="form-field keyword-dropdown">
           <label>Keywords / Tags</label>
-          <div class="tag-input-box">
-            @for (t of tags(); track t) {
-              <span class="tag-chip">
-                {{ t }} <button type="button" (click)="removeTag(t)">✕</button>
+          <div class="keyword-wrap">
+            <button
+              type="button"
+              class="keyword-trigger"
+              [class.open]="keywordOpen()"
+              (click)="toggleKeywordPanel()"
+            >
+              <span [class.placeholder]="!tags().length">
+                {{ tags().length ? tags().length + ' keyword(s) selected' : 'Select keywords...' }}
               </span>
+              <span class="kw-arrow">▾</span>
+            </button>
+
+            @if (keywordOpen()) {
+              <div class="keyword-panel">
+                <div class="kw-search">
+                  <input
+                    type="text"
+                    placeholder="Search keywords..."
+                    [value]="keywordSearch()"
+                    (input)="keywordSearch.set($any($event.target).value)"
+                  />
+                </div>
+
+                <div class="kw-body">
+                  @for (g of filteredKeywordGroups(); track g.group) {
+                    <div class="kw-group">
+                      <div class="kw-group-title">{{ g.group }}</div>
+                      <div class="kw-pills">
+                        @for (k of g.items; track k) {
+                          <button
+                            type="button"
+                            class="kw-pill"
+                            [class.selected]="isKeywordSelected(k)"
+                            (click)="toggleKeyword(k)"
+                          >
+                            @if (isKeywordSelected(k)) { <span>✓</span> }
+                            {{ k }}
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  } @empty {
+                    <p class="kw-empty">No keywords found</p>
+                  }
+                </div>
+
+                <div class="kw-footer">
+                  <button type="button" class="kw-clear" (click)="clearKeywords()">Clear all</button>
+                  <button type="button" class="kw-done" (click)="closeKeywordPanel()">Done</button>
+                </div>
+              </div>
             }
-            <input
-              type="text"
-              placeholder="Type and press enter..."
-              [(ngModel)]="tagInput"
-              (keydown)="addTag($event)"
-            />
           </div>
+
+          @if (tags().length) {
+            <div class="kw-selected">
+              @for (t of tags(); track t) {
+                <span class="tag-chip">
+                  {{ t }} <button type="button" (click)="removeTag(t)">✕</button>
+                </span>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-field">
           <label>{{ newsType === 'Event' ? 'Event Details *' : 'News Details *' }}</label>
           <div class="rich-toolbar">
-            <button type="button"><b>B</b></button>
-            <button type="button"><i>I</i></button>
-            <button type="button"><u>U</u></button>
-            <button type="button">☰</button>
-            <button type="button">≣</button>
-            <button type="button">⬛</button>
-            <button type="button">🔗</button>
-            <button type="button">🖼</button>
-            <button type="button">📎</button>
-            <button type="button">✎</button>
-            <button type="button">🔍</button>
+            <button type="button" title="Bold" (mousedown)="$event.preventDefault()" (click)="exec('bold')"><b>B</b></button>
+            <button type="button" title="Italic" (mousedown)="$event.preventDefault()" (click)="exec('italic')"><i>I</i></button>
+            <button type="button" title="Underline" (mousedown)="$event.preventDefault()" (click)="exec('underline')"><u>U</u></button>
+            <button type="button" title="Bullet list" (mousedown)="$event.preventDefault()" (click)="exec('insertUnorderedList')">☰</button>
+            <button type="button" title="Insert link" (mousedown)="$event.preventDefault()" (click)="insertLink()">🔗</button>
           </div>
-          <textarea rows="5" placeholder="Write full details here..." [(ngModel)]="details"></textarea>
+          <div
+            #detailsEditor
+            class="rich-editor"
+            contenteditable="true"
+            data-placeholder="Write full details here..."
+            (input)="onDetailsInput()"
+          ></div>
         </div>
 
         <div class="form-field" style="max-width: 220px">
@@ -130,7 +181,7 @@
             <button type="button" class="btn-primary" style="width: auto; padding: 9px 20px" (click)="browseCover()">
               Browse Files
             </button>
-            <p class="dz-hint">(JPG, PNG, WEBP · Max 10 MB — used as the thumbnail)</p>
+            <p class="dz-hint">(JPG, PNG, WEBP · Max 10 MB — recommended size: 1200×900px, landscape 4:3)</p>
           } @else {
             <div class="dz-preview" style="max-width: 220px; margin: 0 auto">
               <img [src]="coverImage()!.url" [alt]="coverImage()!.name" />
@@ -167,7 +218,7 @@
             hidden
             (change)="onGalleryInputChange($event)"
           />
-          <p class="dz-hint">(JPG, PNG, WEBP · Max 10 MB each)</p>
+          <p class="dz-hint">(JPG, PNG, WEBP · Max 10 MB each — recommended size: 1000×1000px, square)</p>
         </div>
 
         @if (galleryImages().length > 0) {

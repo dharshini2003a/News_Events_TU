@@ -13,7 +13,6 @@ export class HomeComponent {
   latest: NewsItem;
   strip: NewsItem[];
 
-  // Quick Links drawer is hidden until the user opens it.
   quickOpen = signal(false);
 
   constructor(private newsService: NewsService) {

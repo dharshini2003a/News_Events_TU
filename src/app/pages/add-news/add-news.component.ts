@@ -1,7 +1,7 @@
-import { Component, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventDateGroup, NewsItem } from '../../core/models/news.data';
+import { EventDateGroup, KeywordGroup, NewsItem } from '../../core/models/news.data';
 import { NewsService } from '../../core/services/news.service';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
@@ -17,9 +17,10 @@ interface ImagePreview {
   imports: [FormsModule, AdminSidebarComponent],
   templateUrl: './add-news.component.html',
 })
-export class AddNewsComponent implements OnInit {
+export class AddNewsComponent implements OnInit, AfterViewInit {
   @ViewChild('coverInput') coverInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('galleryInput') galleryInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('detailsEditor') detailsEditorRef!: ElementRef<HTMLDivElement>;
 
   categoryOptions: string[];
 
@@ -31,9 +32,12 @@ export class AddNewsComponent implements OnInit {
   startDate = new Date().toISOString().slice(0, 10);
   endDate = '';
   shortDesc = '';
-  tagInput = '';
-  tags = signal<string[]>(['Salem', 'CME', 'Aurolab']);
-  details = '';
+  keywordGroups: KeywordGroup[];
+  keywordOpen = signal(false);
+  keywordSearch = signal('');
+  tags = signal<string[]>([]);
+  details = ''; // raw HTML from the rich-text editor
+  private pendingDetailsHtml = '';
   status = 'Published';
 
   coverImage = signal<ImagePreview | null>(null);
@@ -53,6 +57,7 @@ export class AddNewsComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.categoryOptions = this.newsService.getCategories().filter((c) => c !== 'All');
+    this.keywordGroups = this.newsService.getKeywordGroups();
   }
 
   ngOnInit(): void {
@@ -72,7 +77,7 @@ export class AddNewsComponent implements OnInit {
     this.endDate = n.endDate || '';
     this.shortDesc = n.shortDescription;
     this.tags.set([...n.keywords]);
-    this.details = (n.body || []).join('\n\n');
+    this.pendingDetailsHtml = (n.body || []).join('');
 
     if (n.thumbnail) {
       this.coverImage.set({ id: 'existing-cover', url: n.thumbnail, name: n.thumbnail });
@@ -94,14 +99,39 @@ export class AddNewsComponent implements OnInit {
     }
   }
 
-  addTag(e: KeyboardEvent): void {
-    if ((e.key === 'Enter' || e.key === ',') && this.tagInput.trim()) {
-      e.preventDefault();
-      const clean = this.tagInput.trim().replace(/,$/, '');
-      if (clean && !this.tags().includes(clean)) {
-        this.tags.update((t) => [...t, clean]);
-      }
-      this.tagInput = '';
+  toggleKeywordPanel(): void {
+    this.keywordOpen.update((v) => !v);
+  }
+
+  filteredKeywordGroups(): KeywordGroup[] {
+    const q = this.keywordSearch().trim().toLowerCase();
+    if (!q) return this.keywordGroups;
+    return this.keywordGroups
+      .map((g) => ({ group: g.group, items: g.items.filter((i) => i.toLowerCase().includes(q)) }))
+      .filter((g) => g.items.length > 0);
+  }
+
+  clearKeywords(): void {
+    this.tags.set([]);
+  }
+
+  closeKeywordPanel(): void {
+    this.keywordOpen.set(false);
+    this.keywordSearch.set('');
+  }
+
+  isKeywordSelected(k: string): boolean {
+    return this.tags().includes(k);
+  }
+
+  toggleKeyword(k: string): void {
+    this.tags.update((t) => (t.includes(k) ? t.filter((x) => x !== k) : [...t, k]));
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocClick(e: MouseEvent): void {
+    if (!(e.target as HTMLElement).closest('.keyword-dropdown')) {
+      this.closeKeywordPanel();
     }
   }
 
@@ -215,6 +245,32 @@ export class AddNewsComponent implements OnInit {
   }
 
 
+  ngAfterViewInit(): void {
+    if (this.pendingDetailsHtml) {
+      this.detailsEditorRef.nativeElement.innerHTML = this.pendingDetailsHtml;
+      this.details = this.pendingDetailsHtml;
+    }
+  }
+
+  // ---------- News Details rich-text toolbar (real WYSIWYG, like Word) ----------
+  exec(command: string): void {
+    this.detailsEditorRef.nativeElement.focus();
+    document.execCommand(command, false);
+    this.onDetailsInput();
+  }
+
+  onDetailsInput(): void {
+    this.details = this.detailsEditorRef.nativeElement.innerHTML;
+  }
+
+  insertLink(): void {
+    const url = prompt('Enter the link URL (e.g. https://example.com):');
+    if (!url) return;
+    this.detailsEditorRef.nativeElement.focus();
+    document.execCommand('createLink', false, url);
+    this.onDetailsInput();
+  }
+
   handleSubmit(status: 'Draft' | 'Published'): void {
     if (!this.title.trim()) {
       alert('Please enter a news title.');
@@ -230,10 +286,7 @@ export class AddNewsComponent implements OnInit {
     }
 
     const galleryUrls = this.galleryImages().map((img) => img.url);
-    const bodyParagraphs = this.details
-      .split(/\n{2,}|\n/)
-      .map((p) => p.trim())
-      .filter(Boolean);
+    const detailsHtml = this.details.trim();
 
     // Resolve date groups from imageIds -> actual photo URLs for storage.
     const resolvedGroups: EventDateGroup[] =
@@ -252,7 +305,7 @@ export class AddNewsComponent implements OnInit {
       date: this.startDate,
       shortDescription: this.shortDesc,
       keywords: this.tags(),
-      body: bodyParagraphs.length ? bodyParagraphs : [this.shortDesc],
+      body: detailsHtml ? [detailsHtml] : [this.shortDesc],
       gallery: galleryUrls,
       thumbnail: this.coverImage()!.url,
       isEvent: this.newsType === 'Event',

@@ -19,9 +19,6 @@ import { FooterComponent } from './shared/components/footer/footer.component';
   `,
 })
 export class AppComponent {
-  // Header/Footer show on every public page, INCLUDING the admin login
-  // page (/admin) — only the inner admin pages (/admin/dashboard,
-  // /admin/add-news, ...) use their own sidebar shell instead.
   isAdminRoute = signal(false);
 
   constructor(private router: Router) {

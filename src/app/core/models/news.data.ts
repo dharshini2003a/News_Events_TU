@@ -973,3 +973,36 @@ export function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
+
+// ---------- Fixed keyword list (drop-down in Add News) ----------
+export interface KeywordGroup {
+  group: string;
+  items: string[];
+}
+
+export const keywordGroups: KeywordGroup[] = [
+  {
+    group: 'Eye Hospitals',
+    items: [
+      'Salem', 'Chennai', 'Madurai', 'Pondicherry', 'Dindigul', 'Coimbatore',
+      'Tirunelveli', 'Tirupur', 'Tuticorin', 'Thanjavur',
+    ],
+  },
+  { group: 'Eyecare Service', items: ['Vision Centres', 'Managed Hospitals', 'Special Products'] },
+  { group: 'Aurolab', items: ['Aurolab', 'IOL'] },
+  {
+    group: 'Others',
+    items: [
+      'LAICO',
+      'Aravind Medical Research Foundation',
+      'Aravind Tele-Ophthalmology Network',
+      'IT Services',
+      'Nithyatha',
+      'CME',
+      'Workshop',
+      'Training',
+      'Conference',
+      'Awareness',
+    ],
+  },
+];
