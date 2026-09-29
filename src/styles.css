@@ -18,7 +18,9 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body { font-family: var(--sans); background: var(--cream); color: var(--ink); line-height: 1.55; }
-#root { min-height: 100vh; display: flex; flex-direction: column; }
+#root, app-root { min-height: 100vh; display: flex; flex-direction: column; }
+app-root > router-outlet + * { flex: 1; }
+app-footer, .site-footer { margin-top: auto; }
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
 button { font-family: inherit; cursor: pointer; }
@@ -26,30 +28,15 @@ button { font-family: inherit; cursor: pointer; }
 .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
 .page-content { flex: 1; padding: 32px 0 56px; }
 
-.site-header { background: linear-gradient(135deg, var(--sky) 0%, var(--paper) 55%); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+.site-header { background: var(--paper); border-bottom: 3px solid var(--gold); position: relative; }
 .header-top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0 10px; position: relative; z-index: 1; }
-.header-top::before {
-  content: "";
-  position: absolute;
-  left: -30px; top: -70px;
-  width: 240px; height: 240px;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    transparent 0 36%,
-    var(--sky-soft) 37% 41%,
-    transparent 42% 52%,
-    var(--sky-soft) 53% 57%,
-    transparent 58% 68%,
-    var(--sky-soft) 69% 73%,
-    transparent 74% 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-.brand { display: flex; align-items: baseline; gap: 10px; position: relative; z-index: 1; }
-.brand-eye { font-size: 30px; color: var(--navy); }
-.brand-name { font-family: var(--serif); font-size: 22px; color: var(--navy); letter-spacing: 0.3px; }
-.brand-tagline { font-family: var(--serif); font-style: italic; font-size: 30px; color: var(--navy-mid); margin-left: 6px; }
-.brand-tagline em { color: var(--gold); font-style: italic; }
+.brand { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; position: relative; z-index: 1; padding: 6px 0 4px; }
+.brand-top { display: flex; align-items: center; gap: 10px; }
+.brand-name { font-family: "Cinzel", "Trajan Pro", Georgia, serif; font-size: 15px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--navy-mid); }
+.brand-name b { color: var(--navy-dark); font-weight: 700; }
+.brand-title { font-family: "Playfair Display", Georgia, "Times New Roman", serif; font-size: 44px; font-weight: 800; line-height: 1.1; color: var(--navy); letter-spacing: 0; }
+.brand-title em { font-family: "Playfair Display", Georgia, serif; font-style: italic; font-weight: 400; color: var(--gold); margin: 0 8px 0 4px; }
+.brand-title span { color: var(--gold); }
 
 .header-date-box { display: flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 .header-date-day { background: var(--gold); color: #fff; font-weight: 700; font-size: 16px; padding: 6px 12px; display: flex; align-items: center; }
@@ -170,6 +157,8 @@ button { font-family: inherit; cursor: pointer; }
 .lightbox-next { right: 26px; }
 
 @media (max-width: 640px) {
+  .brand-name { font-size: 11px; }
+  .brand-title { font-size: 28px; }
   .lightbox-arrow { width: 38px; height: 38px; font-size: 16px; }
   .lightbox-prev { left: 10px; }
   .lightbox-next { right: 10px; }
@@ -205,9 +194,10 @@ button { font-family: inherit; cursor: pointer; }
 .btn-primary:hover { background: var(--navy-mid); }
 .demo-note { font-size: 12px; color: var(--ink-soft); margin-top: 16px; }
 
-.admin-shell { display: flex; min-height: 100vh; align-items: stretch; }
+app-root > router-outlet + *:has(> .admin-shell) { display: flex; flex-direction: column; }
+.admin-shell { display: flex; flex: 1; min-height: 0; align-items: stretch; }
 .admin-shell app-admin-sidebar { display: flex; align-self: stretch; }
-.admin-sidebar { width: 230px; flex-shrink: 0; background: var(--navy-dark); color: #cfd9e2; padding: 18px 0; align-self: stretch; min-height: 100vh; }
+.admin-sidebar { width: 230px; flex-shrink: 0; background: var(--navy-dark); color: #cfd9e2; padding: 18px 0; align-self: stretch; }
 .admin-sidebar .as-title { padding: 0 20px 16px; font-family: var(--serif); font-size: 15px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px; }
 .admin-sidebar .as-link { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13.5px; cursor: pointer; color: #cfd9e2; text-decoration: none; }
 .admin-sidebar .as-link .as-icon { font-size: 13px; width: 16px; text-align: center; }
