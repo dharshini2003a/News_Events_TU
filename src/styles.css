@@ -269,7 +269,6 @@ app-root > router-outlet + *:has(> .admin-shell) { display: flex; flex-direction
 .form-field-row { display: flex; gap: 16px; align-items: flex-start; }
 .form-field-row .form-field { flex: 1; }
 
-/* Segmented pill toggle (News / Event, General / By Date) */
 .type-toggle { display: inline-flex; padding: 4px; gap: 4px; background: #ece8db; border-radius: 999px; width: fit-content; height: fit-content; }
 .type-toggle-option { position: relative; display: flex; align-items: center; gap: 6px; padding: 8px 22px; font-size: 13.5px; font-weight: 600; color: var(--navy); cursor: pointer; background: transparent; border-radius: 999px; transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease; user-select: none; }
 .type-toggle-option:hover { background: rgba(22, 50, 79, 0.08); }
@@ -361,7 +360,7 @@ app-root > router-outlet + *:has(> .admin-shell) { display: flex; flex-direction
   display:block;
 }
 
-/* ---------- Add News: keyword drop-down ---------- */
+
 .keyword-dropdown { position: relative; }
 .keyword-wrap { position: relative; }
 .keyword-trigger {
