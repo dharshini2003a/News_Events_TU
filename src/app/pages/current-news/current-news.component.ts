@@ -120,3 +120,4 @@ export class CurrentNewsComponent {
     return text.replace(/\s+/g, '');
   }
 }
+  
