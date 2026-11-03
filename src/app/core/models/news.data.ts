@@ -81,14 +81,17 @@ export const newsList: NewsItem[] = [
     centre: "New Delhi",
     date: "2026-10-02",
     category: "Conferences",
-    thumbnail: PLACEHOLDER,
+    thumbnail:  IMG + "2026_10_INOS_conference_Delhi_Winner.JPG",
     shortDescription:
       "Dr. Madhumita Gopal won the Walsh in Asia Session at the 13th Conference of ASNOS held at AIIMS, New Delhi.",
     body: [
       "Dr. Madhumita Gopal, Medical Consultant, Neuro-Ophthalmology Services, Aravind-Chennai, was the Winner of the Walsh in Asia Session at the 13th Conference of the Asian Neuro-Ophthalmology Society (ASNOS), held from 2-4 October 2026 in association with the 8th Annual Conference of the Indian Neuro-Ophthalmology Society (INOS) at AIIMS, New Delhi.",
     ],
     keywords: ["ASNOS", "Neuro-Ophthalmology", "Award", "New Delhi"],
-    gallery: [PLACEHOLDER],
+    gallery: [
+      IMG + "2026_10_INOS_conference_Delhi (5).jpg",
+      IMG + "2026_10_INOS_conference_Delhi (1).jpeg",
+    ],
   },
   {
     id: 4,
