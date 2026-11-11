@@ -24,6 +24,9 @@ export interface NewsItem {
   isEvent?: boolean;
   endDate?: string;
   dateGroups?: EventDateGroup[];
+  // Visibility window: users see the item only between these dates; after showTo it is an archive.
+  showFrom?: string; // yyyy-mm-dd
+  showTo?: string; // yyyy-mm-dd
 }
 
 // Images must live in src/assets/images/ (or public/assets/images/ on Angular 17+).
@@ -612,6 +615,13 @@ export const newsList: NewsItem[] = [
 
 export const categories = ["All", "CME", "Events", "Workshop", "Training", "Conferences", "Others"];
 export const centres = ["All Locations", "Salem", "Tirunelveli", "Madurai", "Coimbatore", "Pondicherry", "Chennai", "Tirupur", "Tirupati", "Dindigul", "Thanjavur", "Tuticorin", "Chengalpattu", "Kovilpatti", "Aurolab", "LAICO", "Visitors", "Multiple Centers"];
+
+// Today as yyyy-mm-dd in the local time zone (toISOString would give the UTC date).
+export function todayStr(): string {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
 
 export function formatDate(dateStr: string): string {
   const d = new Date(dateStr);

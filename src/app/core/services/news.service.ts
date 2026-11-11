@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NewsItem, KeywordGroup, newsList, categories, centres, keywordGroups, formatDate } from '../models/news.data';
+import { NewsItem, KeywordGroup, newsList, categories, centres, keywordGroups, formatDate, todayStr } from '../models/news.data';
 
 @Injectable({ providedIn: 'root' })
 export class NewsService {
@@ -7,6 +7,20 @@ export class NewsService {
 
   getAll(): NewsItem[] {
     return this.allNews;
+  }
+
+  // Shown to website users: today is between Show from and Show to (no dates = always shown).
+  getVisible(): NewsItem[] {
+    const today = todayStr();
+    return this.allNews.filter(
+      (n) => (!n.showFrom || n.showFrom <= today) && (!n.showTo || n.showTo >= today)
+    );
+  }
+
+  // Archives page: Show to date has passed. Still stored, just not shown as current news.
+  getArchived(): NewsItem[] {
+    const today = todayStr();
+    return this.allNews.filter((n) => !!n.showTo && n.showTo < today);
   }
 
   getById(id: number | string): NewsItem | undefined {

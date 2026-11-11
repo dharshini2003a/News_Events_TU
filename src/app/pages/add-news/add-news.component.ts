@@ -7,6 +7,7 @@ import {
   departmentTree,
   EventDateGroup,
   imgUrl,
+  todayStr,
   newsSystemTree,
   NewsItem,
   TreeNode,
@@ -37,8 +38,17 @@ interface TreeRow {
     .tree-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     @media (max-width: 1100px) { .tree-grid { grid-template-columns: 1fr; } }
     .tree-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #152642; }
-    .tree-box { height: 230px; overflow: auto; border: 1px solid #cfd6e0; border-radius: 6px; background: #fff; padding: 6px 0; }
-    .tree-row { font-size: 13px; line-height: 1.9; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+    .tree-box { height: 320px; overflow: auto; border: 1px solid #cfd6e0; border-radius: 6px; background: #fff; padding: 6px 0; }
+    .tree-row { font-size: 13px; line-height: 1.9; white-space: nowrap; display: flex; align-items: center; gap: 6px; padding-left: 8px; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; margin-bottom: 18px; }
+    .meta-row .form-field { flex: 1 1 200px; min-width: 180px; margin: 0; }
+    .meta-row .type-field { flex: 0 0 auto; min-width: 0; }
+    .meta-row .form-field > label { display: block; height: 18px; line-height: 18px; margin: 0 0 8px; }
+    .meta-row input[type='date'] { width: 100%; box-sizing: border-box; height: 44px; }
+    .meta-row .type-toggle { height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; padding: 3px; margin: 0; }
+    .meta-row .type-toggle-option { height: 100%; box-sizing: border-box; display: inline-flex; align-items: center; margin: 0; padding: 0 16px; }
+    .show-hint { font-size: 12px; color: #6b7686; margin: -6px 0 18px; }
+    .tree-guides { flex: none; align-self: stretch; background-image: repeating-linear-gradient(to right, transparent 0 8px, #c3cbd8 8px 9px, transparent 9px 18px); }
     .tree-leaf { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin: 0; font-weight: 400; }
     .tree-leaf input, .tree-row > input { width: auto; margin: 0; }
     .tree-toggle { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-weight: 600; color: #152642; display: inline-flex; align-items: center; gap: 6px; }
@@ -50,17 +60,16 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
   @ViewChild('galleryInput') galleryInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('detailsEditor') detailsEditorRef!: ElementRef<HTMLDivElement>;
 
-  categoryOptions: string[];
   imgUrl = imgUrl; // used in the template for existing / uploaded image previews
 
   editId: number | null = null;
 
   title = '';
-  category = '';
   newsType: 'News' | 'Event' = 'News';
-  startDate = new Date().toISOString().slice(0, 10);
+  startDate = todayStr();
+  showFrom = todayStr(); // news is visible to users from this date ...
+  showTo = ''; // ... until this date, then it moves to Archives (still stored)
   endDate = '';
-  shortDesc = '';
   tags = signal<string[]>([]); // every ticked item from the 3 trees ends up here (saved as keywords)
 
   // ---------- 3 tree panels (News System / Department / News Category) ----------
@@ -70,9 +79,7 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
     { title: 'News Category', nodes: categoryTree },
   ];
   // the first branch of every panel is open at the start
-  expanded = signal<Set<string>>(
-    new Set(this.treePanels.map((p, i) => `${i}/${p.nodes[0].name}`))
-  );
+  expanded = signal<Set<string>>(this.allBranchKeys());
   panelRows = computed(() => this.treePanels.map((p, i) => this.buildRows(p.nodes, i)));
   details = ''; // raw HTML from the rich-text editor
   private pendingDetailsHtml = '';
@@ -94,7 +101,6 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    this.categoryOptions = this.newsService.getCategories().filter((c) => c !== 'All');
   }
 
   ngOnInit(): void {
@@ -108,11 +114,11 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
   private prefillFrom(n: NewsItem): void {
     this.editId = n.id;
     this.title = n.title;
-    this.category = n.category;
     this.newsType = n.isEvent ? 'Event' : 'News';
     this.startDate = n.date;
+    if (n.showFrom) this.showFrom = n.showFrom;
+    this.showTo = n.showTo || '';
     this.endDate = n.endDate || '';
-    this.shortDesc = n.shortDescription;
     this.tags.set([...n.keywords]);
     this.pendingDetailsHtml = (n.body || []).join('');
 
@@ -134,6 +140,22 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
         }))
       );
     }
+  }
+
+  // every parent node starts open, so the full tree is visible straight away
+  private allBranchKeys(): Set<string> {
+    const keys = new Set<string>();
+    const walk = (list: TreeNode[], parentKey: string): void => {
+      for (const node of list) {
+        const key = `${parentKey}/${node.name}`;
+        if (node.children?.length) {
+          keys.add(key);
+          walk(node.children, key);
+        }
+      }
+    };
+    this.treePanels.forEach((p, i) => walk(p.nodes, String(i)));
+    return keys;
   }
 
   private buildRows(nodes: TreeNode[], panelIndex: number): TreeRow[] {
@@ -319,6 +341,27 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
     return undefined;
   }
 
+  // Category is no longer typed in: it is taken from the first ticked item that matches a known category.
+  private deriveCategory(): string {
+    const known = this.newsService.getCategories().filter((c) => c !== 'All');
+    for (const tag of this.tags()) {
+      const t = tag.toLowerCase();
+      if (t.length < 3) continue;
+      const hit = known.find((c) => {
+        const k = c.toLowerCase();
+        return t === k || t.startsWith(k) || k.startsWith(t);
+      });
+      if (hit) return hit;
+    }
+    return 'Others';
+  }
+
+  // Short description is no longer typed in: it is the first part of the News Details text.
+  private deriveShortDescription(): string {
+    const text = (this.detailsEditorRef.nativeElement.innerText || '').replace(/\s+/g, ' ').trim();
+    return text.length > 160 ? text.slice(0, 160).trimEnd() + '…' : text;
+  }
+
   handleSubmit(status: 'Draft' | 'Published'): void {
     if (!this.title.trim()) {
       alert('Please enter a news title.');
@@ -329,7 +372,19 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
       return;
     }
     if (this.newsType === 'Event' && !this.endDate) {
-      alert('Please set an end date for the event.');
+      alert('Please set the To date for the event.');
+      return;
+    }
+    if (!this.showFrom || !this.showTo) {
+      alert('Please set the Show from and Show to dates.');
+      return;
+    }
+    if (this.showTo < this.showFrom) {
+      alert('The Show to date cannot be before the Show from date.');
+      return;
+    }
+    if (this.newsType === 'Event' && this.endDate < this.startDate) {
+      alert('The To date cannot be before the From date.');
       return;
     }
 
@@ -351,11 +406,13 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
 
     const payload: Partial<NewsItem> = {
       title: this.title,
-      category: this.category || 'Others',
+      category: this.deriveCategory(),
       date: this.startDate,
-      shortDescription: this.shortDesc,
+      showFrom: this.showFrom,
+      showTo: this.showTo,
+      shortDescription: this.deriveShortDescription(),
       keywords: this.tags(),
-      body: detailsHtml ? [detailsHtml] : [this.shortDesc],
+      body: detailsHtml ? [detailsHtml] : [],
       gallery: galleryUrls,
       thumbnail: this.coverImage()!.url,
       ...(centre ? { centre } : {}),

@@ -17,18 +17,8 @@
           <input type="text" placeholder="Enter news/event title" [(ngModel)]="title" />
         </div>
 
-        <div class="form-field-row">
-          <div class="form-field">
-            <label>Category *</label>
-            <select [(ngModel)]="category">
-              <option value="">Select Category</option>
-              @for (c of categoryOptions; track c) {
-                <option [value]="c">{{ c }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="form-field">
+        <div class="meta-row">
+          <div class="form-field type-field">
             <label>News / Event Type *</label>
             <div class="type-toggle">
               <label class="type-toggle-option" [class.active]="newsType === 'News'">
@@ -39,24 +29,18 @@
               </label>
             </div>
           </div>
-        </div>
 
-        <div class="form-field-row">
           <div class="form-field">
-            <label>{{ newsType === 'Event' ? 'Start Date *' : 'News Date *' }}</label>
+            <label>{{ newsType === 'Event' ? 'From Date *' : 'News Date *' }}</label>
             <input type="date" [(ngModel)]="startDate" />
           </div>
+
           @if (newsType === 'Event') {
             <div class="form-field">
-              <label>End Date *</label>
-              <input type="date" [(ngModel)]="endDate" />
+              <label>To Date *</label>
+              <input type="date" [(ngModel)]="endDate" [min]="startDate" />
             </div>
           }
-        </div>
-
-        <div class="form-field">
-          <label>Short Description</label>
-          <input type="text" placeholder="Enter short description" [(ngModel)]="shortDesc" />
         </div>
 
         <div class="form-field">
@@ -67,7 +51,8 @@
                 <div class="tree-title">{{ panel.title }}</div>
                 <div class="tree-box">
                   @for (row of panelRows()[p]; track row.key) {
-                    <div class="tree-row" [style.padding-left.px]="row.depth * 18 + 8">
+                    <div class="tree-row">
+                      <span class="tree-guides" [style.width.px]="row.depth * 18"></span>
                       @if (row.isLeaf) {
                         <label class="tree-leaf">
                           <input
@@ -126,6 +111,18 @@
             (input)="onDetailsInput()"
           ></div>
         </div>
+
+        <div class="meta-row">
+          <div class="form-field">
+            <label>News Show From *</label>
+            <input type="date" [(ngModel)]="showFrom" />
+          </div>
+          <div class="form-field">
+            <label>News Show To *</label>
+            <input type="date" [(ngModel)]="showTo" [min]="showFrom" />
+          </div>
+        </div>
+        
 
         <div class="form-field" style="max-width: 220px">
           <label>Status</label>
