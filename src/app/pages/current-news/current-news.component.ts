@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { NewsItem } from '../../core/models/news.data';
+import { imgUrl, NewsItem } from '../../core/models/news.data';
 import { NewsService } from '../../core/services/news.service';
 
 const PAGE_SIZE = 5;
@@ -14,6 +14,7 @@ const PAGE_SIZE = 5;
 })
 export class CurrentNewsComponent {
   private newsList: NewsItem[];
+  imgUrl = imgUrl; // adds assets/images/ in front of file names
 
   years: (number | string)[];
   places: string[];
@@ -120,4 +121,3 @@ export class CurrentNewsComponent {
     return text.replace(/\s+/g, '');
   }
 }
-  

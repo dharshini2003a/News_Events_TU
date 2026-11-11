@@ -27,18 +27,25 @@ export interface NewsItem {
 }
 
 // Images must live in src/assets/images/ (or public/assets/images/ on Angular 17+).
-// Always use forward slashes and NO "src/" prefix.
-// TODO: Replace PLACEHOLDER in each news item with its real image path.
+// In the data below, write ONLY the file name (e.g. "photo (1).jpg").
+// The folder path is added automatically by imgUrl().
+// Full URLs (https://...), data: and blob: values are also supported.
 const IMG = "assets/images/";
-const PLACEHOLDER = IMG + "placeholder.jpg";
+const PLACEHOLDER = "placeholder.jpg";
 
 /**
- * Encodes spaces, brackets etc. so file names like
- * "Freshers Day (8).jpeg" load correctly in the browser.
+ * Converts whatever is stored in the data into a browser-ready image URL.
+ *  - ""                         -> placeholder image
+ *  - https://..., data:, blob:  -> used as-is
+ *  - "photo (1).jpeg"           -> assets/images/photo%20(1).jpeg
+ *  - old "assets\\images\\x.jpg" or "assets/images/x.jpg" -> also fixed
  * Use in templates:  <img [src]="imgUrl(news.thumbnail)" />
  */
-export function imgUrl(path: string): string {
-  return encodeURI(path);
+export function imgUrl(file: string): string {
+  if (!file) return encodeURI(IMG + PLACEHOLDER);
+  if (/^(https?:|data:|blob:)/i.test(file)) return file;
+  const clean = file.replace(/\\/g, "/").replace(/^\/?assets\/images\//, "");
+  return encodeURI(IMG + clean);
 }
 
 export const newsList: NewsItem[] = [
@@ -63,7 +70,7 @@ export const newsList: NewsItem[] = [
     centre: "Chennai",
     date: "2026-09-18",
     category: "Others",
-    thumbnail: IMG + "2026_9_Chennai_Distinguished Alumni Award (1).jpeg",
+    thumbnail: "2026_9_Chennai_Distinguished Alumni Award (1).jpeg",
     shortDescription:
       "Dr. Haripriya Aravind was honoured with the Distinguished Alumni Award 2025 by Sri Ramachandra Institute of Higher Education and Research.",
     body: [
@@ -71,8 +78,8 @@ export const newsList: NewsItem[] = [
     ],
     keywords: ["Award", "Alumni", "Chennai", "Cataract"],
     gallery: [
-      IMG + "2026_9_Chennai_Distinguished Alumni Award (1).jpeg",
-      IMG + "2026_9_Chennai_Distinguished Alumni Award (2).jpeg",
+      "2026_9_Chennai_Distinguished Alumni Award (1).jpeg",
+      "2026_9_Chennai_Distinguished Alumni Award (2).jpeg",
     ],
   },
   {
@@ -81,7 +88,7 @@ export const newsList: NewsItem[] = [
     centre: "New Delhi",
     date: "2026-10-02",
     category: "Conferences",
-    thumbnail:  IMG + "2026_10_INOS_conference_Delhi_Winner.JPG",
+    thumbnail: "2026_10_INOS_conference_Delhi_Winner.JPG",
     shortDescription:
       "Dr. Madhumita Gopal won the Walsh in Asia Session at the 13th Conference of ASNOS held at AIIMS, New Delhi.",
     body: [
@@ -89,8 +96,8 @@ export const newsList: NewsItem[] = [
     ],
     keywords: ["ASNOS", "Neuro-Ophthalmology", "Award", "New Delhi"],
     gallery: [
-      IMG + "2026_10_INOS_conference_Delhi (5).jpg",
-      IMG + "2026_10_INOS_conference_Delhi (1).jpeg",
+      "2026_10_INOS_conference_Delhi (5).jpg",
+      "2026_10_INOS_conference_Delhi (1).jpeg",
     ],
   },
   {
@@ -99,7 +106,7 @@ export const newsList: NewsItem[] = [
     centre: "Multiple Centers",
     date: "2026-10-01",
     category: "Events",
-    thumbnail: IMG + "2026_10_PDY_Founders day special meditation (2).JPG",
+    thumbnail: "2026_10_PDY_Founders day special meditation (2).JPG",
     shortDescription:
       "Vision Day was observed across most Aravind centres through an Open-Eye Meditation Programme at 7:30 a.m.",
     body: [
@@ -109,8 +116,8 @@ export const newsList: NewsItem[] = [
     ],
     keywords: ["Vision Day", "Meditation", "Sri Aurobindo", "Savitri"],
     gallery: [
-      IMG + "2026_10_PDY_Founders day special meditation (3).JPG",
-      IMG + "2026_10_PDY_Founders day special meditation (5).JPG",
+      "2026_10_PDY_Founders day special meditation (3).JPG",
+      "2026_10_PDY_Founders day special meditation (5).JPG",
     ],
   },
   {
@@ -119,7 +126,7 @@ export const newsList: NewsItem[] = [
     centre: "Tirupati",
     date: "2026-10-03",
     category: "Events",
-    thumbnail: IMG + "2026_9_TPT_Freshers Day (8).jpeg",
+    thumbnail: "2026_9_TPT_Freshers Day (8).jpeg",
     shortDescription:
       "Aravind-Tirupati organised Freshers’ Day for the newly joined AOPs with a welcome dance, skit and many cultural performances.",
     body: [
@@ -129,10 +136,10 @@ export const newsList: NewsItem[] = [
     ],
     keywords: ["Freshers’ Day", "AOP", "Tirupati", "Celebration"],
     gallery: [
-      IMG + "2026_9_TPT_Freshers Day (1).jpeg",
-      IMG + "2026_9_TPT_Freshers Day (6).jpeg",
-      IMG + "2026_9_TPT_Freshers Day (7).jpeg",
-      IMG + "2026_9_TPT_Freshers Day (4).jpeg",
+      "2026_9_TPT_Freshers Day (1).jpeg",
+      "2026_9_TPT_Freshers Day (6).jpeg",
+      "2026_9_TPT_Freshers Day (7).jpeg",
+      "2026_9_TPT_Freshers Day (4).jpeg",
     ],
   },
   {
@@ -141,7 +148,7 @@ export const newsList: NewsItem[] = [
     centre: "Chennai",
     date: "2026-09-07",
     category: "Training",
-    thumbnail: IMG + "2026_9_Chennai_Reflective Leadership Journey (3).jpg",
+    thumbnail: "2026_9_Chennai_Reflective Leadership Journey (3).jpg",
     shortDescription:
       "Aravind-Chennai launched Naan Nee Naam, a nine-month reflective leadership journey for mid-level and support team leaders.",
     body: [
@@ -152,10 +159,10 @@ export const newsList: NewsItem[] = [
     ],
     keywords: ["Leadership", "Training", "Chennai", "Naan Nee Naam"],
     gallery: [
-      IMG + "2026_9_Chennai_Reflective Leadership Journey (3).jpg",
-      IMG + "2026_9_Chennai_Reflective Leadership Journey (5).jpg",
-      IMG + "2026_9_Chennai_Reflective Leadership Journey (4).jpg",
-      IMG + "2026_9_Chennai_Reflective Leadership Journey (7).jpg",
+      "2026_9_Chennai_Reflective Leadership Journey (3).jpg",
+      "2026_9_Chennai_Reflective Leadership Journey (5).jpg",
+      "2026_9_Chennai_Reflective Leadership Journey (4).jpg",
+      "2026_9_Chennai_Reflective Leadership Journey (7).jpg",
     ],
   },
   {
@@ -165,7 +172,7 @@ export const newsList: NewsItem[] = [
     date: "2026-09-25",
     category: "Events",
     // NOTE: "20269_9_" looks like a typo, but it must match the real file name exactly.
-    thumbnail: IMG + "20269_9_Aurolab_Set_Visitor program (1).JPG",
+    thumbnail: "20269_9_Aurolab_Set_Visitor program (1).JPG",
     shortDescription:
       "The second batch of Aurolab’s SET programme was held on 25-26 September 2026 with eight ophthalmologists participating.",
     body: [
@@ -175,7 +182,7 @@ export const newsList: NewsItem[] = [
       "Interactive sessions with other members of the Aravind team also provided opportunities to understand the principles and practices underlying Aravind’s approach to eye care.",
     ],
     keywords: ["SET", "Aurolab", "Visitor Programme", "Manufacturing"],
-    gallery: [IMG + "20269_9_Aurolab_Set_Visitor program (1).JPG"],
+    gallery: ["20269_9_Aurolab_Set_Visitor program (1).JPG"],
   },
   {
     id: 8,
@@ -184,7 +191,7 @@ export const newsList: NewsItem[] = [
     date: "2026-09-21",
     category: "Training",
     thumbnail:
-      IMG + "2026_9_Course_Customised Training Management for Ophthalmic Subspecialty (4).jpg",
+      "2026_9_Course_Customised Training Management for Ophthalmic Subspecialty (4).jpg",
     shortDescription:
       "LAICO conducted a four-day customised training programme for 10 Cure Blindness Programme Managers from India, Nepal, Ethiopia, Ghana, and the USA.",
     body: [
@@ -194,8 +201,8 @@ export const newsList: NewsItem[] = [
     ],
     keywords: ["LAICO", "Training", "Cure Blindness", "International"],
     gallery: [
-      IMG + "2026_9_Course_Customised Training Management for Ophthalmic Subspecialty (2).jpg",
-      IMG + "2026_9_Course_Customised Training Management for Ophthalmic Subspecialty (9).jpg",
+      "2026_9_Course_Customised Training Management for Ophthalmic Subspecialty (2).jpg",
+      "2026_9_Course_Customised Training Management for Ophthalmic Subspecialty (9).jpg",
     ],
   },
   {
@@ -242,7 +249,7 @@ export const newsList: NewsItem[] = [
     centre: "Salem",
     date: "2026-09-27",
     category: "Others",
-    thumbnail: IMG + "2026_9_Salem_Mega Camp (7).jpg",
+    thumbnail: "2026_9_Salem_Mega Camp (7).jpg",
     shortDescription:
       "The Mega Free Eye Camp by Aravind-Salem and Rasi Foundation witnessed a record 617 surgeries in a single day.",
     body: [
@@ -252,17 +259,17 @@ export const newsList: NewsItem[] = [
     ],
     keywords: ["Eye Camp", "Salem", "Rasi Foundation", "Cataract"],
     gallery: [
-      IMG + "2026_9_Salem_Mega Camp (2).jpg",
-      IMG + "2026_9_Salem_Mega Camp (5).jpg",
+      "2026_9_Salem_Mega Camp (2).jpg",
+      "2026_9_Salem_Mega Camp (5).jpg",
     ],
   },
-    {
+  {
     id: 11,
     title: "Freshers’ Day at Aravind-Chennai",
     centre: "Chennai",
     date: "2026-09-29",
     category: "Events",
-    thumbnail: "assets\\images\\2026_9_Chennai_Freshers Day (1).jpeg",
+    thumbnail: "2026_9_Chennai_Freshers Day (1).jpeg",
     shortDescription:
       "A special celebration welcomed the first-year AOPs to the Aravind family at Aravind-Chennai.",
     body: [
@@ -270,7 +277,10 @@ export const newsList: NewsItem[] = [
       "The highlight was the Prize Distribution Ceremony, recognising achievements in academics, seminars, quizzes, rangoli, drawing, memory games, and other activities.",
     ],
     keywords: ["Freshers’ Day", "AOP", "Chennai", "Celebration"],
-    gallery: ["assets\\images\\2026_9_Chennai_Freshers Day (4).jpeg","assets\\images\\2026_9_Chennai_Freshers Day (5).jpeg"],
+    gallery: [
+      "2026_9_Chennai_Freshers Day (4).jpeg",
+      "2026_9_Chennai_Freshers Day (5).jpeg",
+    ],
   },
   {
     id: 12,
@@ -278,7 +288,7 @@ export const newsList: NewsItem[] = [
     centre: "Chennai",
     date: "2026-09-27",
     category: "Events",
-    thumbnail: "assets\\images\\2026_9_Chennai_Graduation Day (1).JPG",
+    thumbnail: "2026_9_Chennai_Graduation Day (1).JPG",
     shortDescription:
       "128 second-year AOP trainees graduated into employees at the Graduation Day ceremony at Aravind-Chennai.",
     body: [
@@ -287,7 +297,10 @@ export const newsList: NewsItem[] = [
       "The celebration concluded with a Vote of Thanks. A total of 237 parents attended the Graduation Day celebration.",
     ],
     keywords: ["Graduation Day", "AOP", "Chennai", "Celebration"],
-    gallery: ["assets\\images\\2026_9_Chennai_Graduation Day (2).JPG","assets\\images\\2026_9_Chennai_Graduation Day (6).JPG"],
+    gallery: [
+      "2026_9_Chennai_Graduation Day (2).JPG",
+      "2026_9_Chennai_Graduation Day (6).JPG",
+    ],
   },
   {
     id: 13,
@@ -335,7 +348,7 @@ export const newsList: NewsItem[] = [
     body: [
       "Niraja Anu, Project Assistant at PNRRC, Aravind-Coimbatore, won the Best Poster Award at the 3rd International Conference on Indian Rural Public Health and Non-Communicable Diseases, held on 19–20 September 2026 at KMCH Institute of Health Sciences and Research, Coimbatore.",
       "Her poster, titled “Ethnolinguistic differences in diabetic retinopathy within a shared geographic setting in South India: The Gudalur Diabetic Retinopathy Study,” showed that among people with diabetes living in the same region, Malayalam speakers had nearly twice the odds of diabetic retinopathy as Tamil speakers, despite similar glycaemic control. The findings point to lifestyle differences, particularly diet, as a possible contributing factor.",
-    ], 
+    ],
     keywords: ["Award", "Diabetic Retinopathy", "Coimbatore", "Research"],
     gallery: [PLACEHOLDER],
   },
@@ -377,14 +390,14 @@ export const newsList: NewsItem[] = [
     centre: "Coimbatore",
     date: "2026-09-30",
     category: "Others",
-    thumbnail: "assets\\images\\2026_9_CBE_Distinguished Alumnus Award 2026 (1).jpg",
+    thumbnail: "2026_9_CBE_Distinguished Alumnus Award 2026 (1).jpg",
     shortDescription:
       "Dr. Manju R. Pillai was honoured with the Distinguished Alumnus Award 2026 by PSG Institute of Medical Sciences and Research.",
     body: [
       "Dr. Manju R. Pillai, Medical Consultant, Glaucoma Services, Aravind-Madurai, was honoured with the Distinguished Alumnus Award 2026 at the Foundation Day 2026 celebration of the PSG Institute of Medical Sciences and Research, Coimbatore, in recognition of distinguished alumni.",
-    ],  
+    ],
     keywords: ["Award", "Alumni", "Coimbatore", "Glaucoma"],
-    gallery: ["assets\\images\\2026_9_CBE_Distinguished Alumnus Award 2026 (2).jpg"],
+    gallery: ["2026_9_CBE_Distinguished Alumnus Award 2026 (2).jpg"],
   },
   {
     id: 19,
@@ -411,7 +424,7 @@ export const newsList: NewsItem[] = [
     centre: "Madurai",
     date: "2026-10-01",
     category: "Events",
-    thumbnail: "assets\\images\\2026_10_Oration Award_Dr. Paul Courtright (37).jpg",
+    thumbnail: "2026_10_Oration Award_Dr. Paul Courtright (37).jpg",
     shortDescription:
       "The Dr. G. Venkataswamy Memorial Oration Award 2026 was conferred on Dr. Paul Courtright and Dr. Susan Lewallen at Aravind-Madurai.",
     body: [
@@ -423,7 +436,12 @@ export const newsList: NewsItem[] = [
       "Dr. Paul Courtright delivered the oration on the topic, “Reducing vision loss in Sub-Saharan Africa: Research to generate evidence and inform programmes & policies.” The award was presented by G. Natchiyar, Director Emeritus, AECS. The citation was presented by Dr. M. Srinivasan, Director Emeritus, AECS. The Vote of Thanks was delivered by Dr. Venkatesh Prajna, Director – Residency Training & Director – Finance, AECS.",
     ],
     keywords: ["Oration", "Dr. G. Venkataswamy", "Madurai", "Award"],
-    gallery: ["assets\\images\\2026_10_Oration Award_Dr. Paul Courtright (2).jpg", "assets\\images\\2026_10_Oration Award_Dr. Paul Courtright (23).jpg", "assets\\images\\2026_10_Oration Award_Dr. Paul Courtright (25).jpg","assets\\images\\2026_10_Oration Award_Dr. Paul Courtright (50).jpg"],
+    gallery: [
+      "2026_10_Oration Award_Dr. Paul Courtright (2).jpg",
+      "2026_10_Oration Award_Dr. Paul Courtright (23).jpg",
+      "2026_10_Oration Award_Dr. Paul Courtright (25).jpg",
+      "2026_10_Oration Award_Dr. Paul Courtright (50).jpg",
+    ],
   },
   {
     id: 21,
@@ -468,7 +486,7 @@ export const newsList: NewsItem[] = [
     centre: "Thanjavur",
     date: "2026-09-29",
     category: "Others",
-    thumbnail: "assets\\images\\2026_9_Thanjavur_Outreach camp  (2) - Copy.jpg",
+    thumbnail: "2026_9_Thanjavur_Outreach camp  (2) - Copy.jpg",
     shortDescription:
       "Aravind-Thanjavur conducted an awareness programme on Eye Donation, Preventive Eye Care and Common Eye Diseases at Kudavai Natchiyar Government Arts and Science College.",
     body: [
@@ -476,7 +494,10 @@ export const newsList: NewsItem[] = [
       "The programme was attended by students and faculty members. The interactive session provided an opportunity for participants to clarify their doubts and gain a better understanding of various aspects of eye health and eye donation.",
     ],
     keywords: ["Awareness", "Eye Donation", "Thanjavur", "Preventive Eye Care"],
-    gallery: ["assets\\images\\2026_9_Thanjavur_Outreach camp  (5).jpg","assets\\images\\2026_9_Thanjavur_Outreach camp  (6).jpg"],
+    gallery: [
+      "2026_9_Thanjavur_Outreach camp  (5).jpg",
+      "2026_9_Thanjavur_Outreach camp  (6).jpg",
+    ],
   },
   {
     id: 24,
@@ -533,7 +554,7 @@ export const newsList: NewsItem[] = [
     centre: "Tirunelveli",
     date: "2026-09-28",
     category: "Events",
-    thumbnail: "assets\\images\\2026_9_TVL_AOP Freshers Day (4).JPG",
+    thumbnail: "2026_9_TVL_AOP Freshers Day (4).JPG",
     shortDescription:
       "Aravind-Tirunelveli warmly welcomed the new batch of AOPs with a Freshers’ Day celebration of cultural performances and addresses.",
     body: [
@@ -544,7 +565,10 @@ export const newsList: NewsItem[] = [
       "An important part of the celebration was the sharing of experiences by Sr. Sangarammal and Selvi, the Coordinators. The programme concluded with the Vote of Thanks proposed by Sr. Prathicsha.",
     ],
     keywords: ["Freshers’ Day", "AOP", "Tirunelveli", "Celebration"],
-    gallery: ["assets\\images\\2026_9_TVL_AOP Freshers Day (5).JPG","assets\\images\\2026_9_TVL_AOP Freshers Day (8).JPG"],
+    gallery: [
+      "2026_9_TVL_AOP Freshers Day (5).JPG",
+      "2026_9_TVL_AOP Freshers Day (8).JPG",
+    ],
   },
   {
     id: 28,
@@ -552,7 +576,7 @@ export const newsList: NewsItem[] = [
     centre: "Kovilpatti",
     date: "2026-09-25",
     category: "Events",
-    thumbnail: "assets\\images\\2026_9_Kovilpatti_Hospital day (12).jpg",
+    thumbnail: "2026_9_Kovilpatti_Hospital day (12).jpg",
     shortDescription:
       "The 7th Hospital Day of Aravind-Kovilpatti was celebrated with cultural performances and felicitations.",
     body: [
@@ -562,7 +586,11 @@ export const newsList: NewsItem[] = [
       "The cultural segment continued with an energetic Karakattam performance by Sr. Sakthi and Sr. Malathi, followed by a melodious song by Sr. Kavina. The AOP Sisters then presented a lively group dance, showcasing their enthusiasm, creativity, and team spirit. The formal programme concluded with the Vote of Thanks delivered by Rajaram Mohanroy, Manager.",
     ],
     keywords: ["Hospital Day", "Kovilpatti", "Celebration", "Cultural Programme"],
-    gallery: ["assets\\images\\2026_9_Kovilpatti_Hospital day (17).jpg","assets\\images\\2026_9_Kovilpatti_Hospital day (6).jpg","assets\\images\\2026_9_Kovilpatti_Hospital day (9).jpg"],
+    gallery: [
+      "2026_9_Kovilpatti_Hospital day (17).jpg",
+      "2026_9_Kovilpatti_Hospital day (6).jpg",
+      "2026_9_Kovilpatti_Hospital day (9).jpg",
+    ],
   },
   {
     id: 29,
@@ -570,7 +598,7 @@ export const newsList: NewsItem[] = [
     centre: "Aurolab",
     date: "2026-09-12",
     category: "Events",
-    thumbnail: "assets\\images\\2026_9_Aurolab_Building Bonds, Strengthening Teams.png",
+    thumbnail: "2026_9_Aurolab_Building Bonds, Strengthening Teams.png",
     shortDescription:
       "Aurolab conducted an employee engagement activity for newly joined staff of the Warehouse Department.",
     body: [
@@ -578,7 +606,7 @@ export const newsList: NewsItem[] = [
       "The initiative provided an opportunity for new employees to connect, collaborate, and build stronger working relationships as they settled into the Aurolab family.",
     ],
     keywords: ["Employee Engagement", "Aurolab", "Team Building", "Warehouse"],
-    gallery: ["assets\\images\\2026_9_Aurolab_Building Bonds, Strengthening Teams (1).png"],
+    gallery: ["2026_9_Aurolab_Building Bonds, Strengthening Teams (1).png"],
   },
 ];
 
@@ -620,5 +648,100 @@ export const keywordGroups: KeywordGroup[] = [
       'Conference',
       'Awareness',
     ],
+  },
+];
+
+// ---------- Tree lists for Add News (same as the old admin: News System / Department / News Category) ----------
+// To add / rename / move an item, just edit the lists below.
+export interface TreeNode {
+  name: string;
+  children?: TreeNode[];
+  selectable?: boolean; // a parent that can also be ticked by itself (e.g. Aurolab)
+}
+
+const leaves = (names: string[]): TreeNode[] => names.map((name) => ({ name }));
+
+export const newsSystemTree: TreeNode[] = [
+  {
+    name: 'Eyecare Service',
+    children: [
+      {
+        name: 'Eye Hospitals',
+        children: leaves([
+          'Salem', 'Chennai', 'Madurai', 'Pondicherry', 'Dindigul', 'Coimbatore',
+          'Tirunelveli', 'Tirupur', 'Tuticorin', 'Thanjavur', 'Tirupati', 'Chengalpattu', 'Kovilpatti',
+        ]),
+      },
+      { name: 'Community Centres', children: leaves(['Tirumangalam', 'Melur']) },
+      { name: 'Vision Centres' },
+      { name: 'Managed Hospitals' },
+      { name: 'Aravind Medical Research Foundation' },
+      { name: 'LAICO' },
+      {
+        name: 'Aurolab',
+        selectable: true,
+        children: leaves(['IOL', 'Pharmaceutical', 'Suture Needle', 'Equipments', 'Surgical Blade']),
+      },
+      { name: 'Special Products' },
+      { name: 'Aravind Tele-Ophthalmology Network' },
+      { name: 'IT Services' },
+      { name: 'Nithyatha' },
+    ],
+  },
+];
+
+export const departmentTree: TreeNode[] = [
+  {
+    name: 'Specialty Clinic',
+    children: leaves([
+      'Cataract', 'Retina', 'Neuro', 'Cornea', 'Uvea', 'Low Vision',
+      'Paediatric', 'Orbit', 'Eye Bank', 'Glaucoma',
+    ]),
+  },
+  {
+    name: 'Support Services',
+    children: leaves([
+      'Microbiology', 'Lab', 'Bank', 'Canteen', 'Pharmacy', 'Optical Shop',
+      'Operation Theatre', 'Medical Records', 'Creche', 'Instrument Maintenance', 'Library',
+    ]),
+  },
+  {
+    name: 'Administration',
+    children: leaves([
+      'General Administration', 'Human Resource', 'Personnel', 'Camp', 'MLOP', 'Doctors',
+      'Community Outreach', 'Eye Bank', 'Education & Training Programmes', 'Consultancy',
+      'Research', 'Products', 'Project',
+    ]),
+  },
+];
+
+export const categoryTree: TreeNode[] = [
+  { name: 'Award' },
+  { name: 'Performance' },
+  { name: 'Building' },
+  { name: 'Visitor' },
+  {
+    name: 'Visits',
+    children: leaves(['Meeting Visit', 'Internal Capacity Visit', 'Work Visits', 'Research Visits']),
+  },
+  {
+    name: 'Conference Visits',
+    children: leaves(['Paper Presented', 'Poster Presented', 'Attended', 'Faculty']),
+  },
+  {
+    name: 'Consultancy Visits',
+    children: leaves(['Evaluation', 'Need Assessment', 'Follow-up Visit', 'Workshop Visit', 'Onsite Training']),
+  },
+  { name: 'Talk at Other Institution' },
+  {
+    name: 'Events',
+    children: leaves([
+      'Inauguration', 'Parameter', 'Valedictory Function', 'Annual Day', 'Mission Day', 'Vision Day',
+      'Festival Celebration', 'Sponsors Day', 'Eye Donation Fortnight', 'CME', 'Exhibition', 'Workshop',
+      'Conference', 'Audit', 'Awareness Programme', 'Excursion', 'Graduation Day', 'Melody Friday',
+      'Seminar', 'Meeting', 'Launch', 'Retreat', 'Guest Lecture', 'Training Programme', 'Camp',
+      'Integrating with Community', 'Recognition', 'Cultural Programme', 'Auroutsav', 'Bhajan',
+      'Mediclaim Insurance', 'Publication', 'Course', 'Special Days', 'Aurowel', 'Donation',
+    ]),
   },
 ];

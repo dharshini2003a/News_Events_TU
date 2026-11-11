@@ -59,58 +59,39 @@
           <input type="text" placeholder="Enter short description" [(ngModel)]="shortDesc" />
         </div>
 
-        <div class="form-field keyword-dropdown">
+        <div class="form-field">
           <label>Keywords / Tags</label>
-          <div class="keyword-wrap">
-            <button
-              type="button"
-              class="keyword-trigger"
-              [class.open]="keywordOpen()"
-              (click)="toggleKeywordPanel()"
-            >
-              <span [class.placeholder]="!tags().length">
-                {{ tags().length ? tags().length + ' keyword(s) selected' : 'Select keywords...' }}
-              </span>
-              <span class="kw-arrow">▾</span>
-            </button>
-
-            @if (keywordOpen()) {
-              <div class="keyword-panel">
-                <div class="kw-search">
-                  <input
-                    type="text"
-                    placeholder="Search keywords..."
-                    [value]="keywordSearch()"
-                    (input)="keywordSearch.set($any($event.target).value)"
-                  />
-                </div>
-
-                <div class="kw-body">
-                  @for (g of filteredKeywordGroups(); track g.group) {
-                    <div class="kw-group">
-                      <div class="kw-group-title">{{ g.group }}</div>
-                      <div class="kw-pills">
-                        @for (k of g.items; track k) {
-                          <button
-                            type="button"
-                            class="kw-pill"
-                            [class.selected]="isKeywordSelected(k)"
-                            (click)="toggleKeyword(k)"
-                          >
-                            @if (isKeywordSelected(k)) { <span>✓</span> }
-                            {{ k }}
-                          </button>
+          <div class="tree-grid">
+            @for (panel of treePanels; track panel.title; let p = $index) {
+              <div class="tree-panel">
+                <div class="tree-title">{{ panel.title }}</div>
+                <div class="tree-box">
+                  @for (row of panelRows()[p]; track row.key) {
+                    <div class="tree-row" [style.padding-left.px]="row.depth * 18 + 8">
+                      @if (row.isLeaf) {
+                        <label class="tree-leaf">
+                          <input
+                            type="checkbox"
+                            [checked]="isKeywordSelected(row.node.name)"
+                            (change)="toggleKeyword(row.node.name)"
+                          />
+                          {{ row.node.name }}
+                        </label>
+                      } @else {
+                        @if (row.node.selectable) {
+                          <input
+                            type="checkbox"
+                            [checked]="isKeywordSelected(row.node.name)"
+                            (change)="toggleKeyword(row.node.name)"
+                          />
                         }
-                      </div>
+                        <button type="button" class="tree-toggle" (click)="toggleExpand(row.key)">
+                          <span class="tree-sign">{{ row.open ? '−' : '+' }}</span>
+                          {{ row.node.name }}
+                        </button>
+                      }
                     </div>
-                  } @empty {
-                    <p class="kw-empty">No keywords found</p>
                   }
-                </div>
-
-                <div class="kw-footer">
-                  <button type="button" class="kw-clear" (click)="clearKeywords()">Clear all</button>
-                  <button type="button" class="kw-done" (click)="closeKeywordPanel()">Done</button>
                 </div>
               </div>
             }
@@ -123,6 +104,7 @@
                   {{ t }} <button type="button" (click)="removeTag(t)">✕</button>
                 </span>
               }
+              <button type="button" class="kw-clear" (click)="clearKeywords()">Clear all</button>
             </div>
           }
         </div>
@@ -184,7 +166,7 @@
             <p class="dz-hint">(JPG, PNG, WEBP · Max 10 MB — recommended size: 1200×900px, landscape 4:3)</p>
           } @else {
             <div class="dz-preview" style="max-width: 220px; margin: 0 auto">
-              <img [src]="coverImage()!.url" [alt]="coverImage()!.name" />
+              <img [src]="imgUrl(coverImage()!.url)" [alt]="coverImage()!.name" />
               <button type="button" (click)="removeCover()" aria-label="Remove cover image">✕</button>
             </div>
           }
@@ -226,7 +208,7 @@
             @for (img of galleryImages(); track img.id) {
               <div class="dz-preview" [class.dz-preview-pickable]="activeGroupIndex() !== null">
                 <img
-                  [src]="img.url"
+                  [src]="imgUrl(img.url)"
                   [alt]="img.name"
                   (click)="activeGroupIndex() !== null ? toggleImageInActiveGroup(img.id) : null"
                 />

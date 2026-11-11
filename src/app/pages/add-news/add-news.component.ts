@@ -1,7 +1,16 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventDateGroup, KeywordGroup, NewsItem } from '../../core/models/news.data';
+import {
+  categoryTree,
+  centres,
+  departmentTree,
+  EventDateGroup,
+  imgUrl,
+  newsSystemTree,
+  NewsItem,
+  TreeNode,
+} from '../../core/models/news.data';
 import { NewsService } from '../../core/services/news.service';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
@@ -11,11 +20,30 @@ interface ImagePreview {
   name: string;
 }
 
+interface TreeRow {
+  node: TreeNode;
+  depth: number;
+  key: string;
+  isLeaf: boolean;
+  open: boolean;
+}
+
 @Component({
   selector: 'app-add-news',
   standalone: true,
   imports: [FormsModule, AdminSidebarComponent],
   templateUrl: './add-news.component.html',
+  styles: [`
+    .tree-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 1100px) { .tree-grid { grid-template-columns: 1fr; } }
+    .tree-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #152642; }
+    .tree-box { height: 230px; overflow: auto; border: 1px solid #cfd6e0; border-radius: 6px; background: #fff; padding: 6px 0; }
+    .tree-row { font-size: 13px; line-height: 1.9; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+    .tree-leaf { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin: 0; font-weight: 400; }
+    .tree-leaf input, .tree-row > input { width: auto; margin: 0; }
+    .tree-toggle { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-weight: 600; color: #152642; display: inline-flex; align-items: center; gap: 6px; }
+    .tree-sign { display: inline-block; width: 14px; height: 14px; line-height: 12px; text-align: center; border: 1px solid #8a97ab; border-radius: 2px; font-size: 12px; background: #f5f7fb; }
+  `],
 })
 export class AddNewsComponent implements OnInit, AfterViewInit {
   @ViewChild('coverInput') coverInputRef!: ElementRef<HTMLInputElement>;
@@ -23,6 +51,7 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
   @ViewChild('detailsEditor') detailsEditorRef!: ElementRef<HTMLDivElement>;
 
   categoryOptions: string[];
+  imgUrl = imgUrl; // used in the template for existing / uploaded image previews
 
   editId: number | null = null;
 
@@ -32,10 +61,19 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
   startDate = new Date().toISOString().slice(0, 10);
   endDate = '';
   shortDesc = '';
-  keywordGroups: KeywordGroup[];
-  keywordOpen = signal(false);
-  keywordSearch = signal('');
-  tags = signal<string[]>([]);
+  tags = signal<string[]>([]); // every ticked item from the 3 trees ends up here (saved as keywords)
+
+  // ---------- 3 tree panels (News System / Department / News Category) ----------
+  treePanels = [
+    { title: 'News System', nodes: newsSystemTree },
+    { title: 'Department', nodes: departmentTree },
+    { title: 'News Category', nodes: categoryTree },
+  ];
+  // the first branch of every panel is open at the start
+  expanded = signal<Set<string>>(
+    new Set(this.treePanels.map((p, i) => `${i}/${p.nodes[0].name}`))
+  );
+  panelRows = computed(() => this.treePanels.map((p, i) => this.buildRows(p.nodes, i)));
   details = ''; // raw HTML from the rich-text editor
   private pendingDetailsHtml = '';
   status = 'Published';
@@ -57,7 +95,6 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute
   ) {
     this.categoryOptions = this.newsService.getCategories().filter((c) => c !== 'All');
-    this.keywordGroups = this.newsService.getKeywordGroups();
   }
 
   ngOnInit(): void {
@@ -99,25 +136,33 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  toggleKeywordPanel(): void {
-    this.keywordOpen.update((v) => !v);
+  private buildRows(nodes: TreeNode[], panelIndex: number): TreeRow[] {
+    const open = this.expanded();
+    const rows: TreeRow[] = [];
+    const walk = (list: TreeNode[], depth: number, parentKey: string): void => {
+      for (const node of list) {
+        const key = `${parentKey}/${node.name}`;
+        const isLeaf = !node.children?.length;
+        const isOpen = open.has(key);
+        rows.push({ node, depth, key, isLeaf, open: isOpen });
+        if (!isLeaf && isOpen) walk(node.children!, depth + 1, key);
+      }
+    };
+    walk(nodes, 0, String(panelIndex));
+    return rows;
   }
 
-  filteredKeywordGroups(): KeywordGroup[] {
-    const q = this.keywordSearch().trim().toLowerCase();
-    if (!q) return this.keywordGroups;
-    return this.keywordGroups
-      .map((g) => ({ group: g.group, items: g.items.filter((i) => i.toLowerCase().includes(q)) }))
-      .filter((g) => g.items.length > 0);
+  toggleExpand(key: string): void {
+    this.expanded.update((s) => {
+      const next = new Set(s);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   }
 
   clearKeywords(): void {
     this.tags.set([]);
-  }
-
-  closeKeywordPanel(): void {
-    this.keywordOpen.set(false);
-    this.keywordSearch.set('');
   }
 
   isKeywordSelected(k: string): boolean {
@@ -126,13 +171,6 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
 
   toggleKeyword(k: string): void {
     this.tags.update((t) => (t.includes(k) ? t.filter((x) => x !== k) : [...t, k]));
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocClick(e: MouseEvent): void {
-    if (!(e.target as HTMLElement).closest('.keyword-dropdown')) {
-      this.closeKeywordPanel();
-    }
   }
 
   removeTag(tag: string): void {
@@ -271,6 +309,16 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
     this.onDetailsInput();
   }
 
+  // Centre is taken from the first ticked item that is a known centre (Madurai, Aurolab, LAICO...).
+  private deriveCentre(): string | undefined {
+    const known = centres.filter((c) => c !== 'All Locations');
+    for (const tag of this.tags()) {
+      const hit = known.find((c) => c.toLowerCase() === tag.toLowerCase());
+      if (hit) return hit;
+    }
+    return undefined;
+  }
+
   handleSubmit(status: 'Draft' | 'Published'): void {
     if (!this.title.trim()) {
       alert('Please enter a news title.');
@@ -299,6 +347,8 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
           }))
         : [];
 
+    const centre = this.deriveCentre();
+
     const payload: Partial<NewsItem> = {
       title: this.title,
       category: this.category || 'Others',
@@ -308,6 +358,7 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
       body: detailsHtml ? [detailsHtml] : [this.shortDesc],
       gallery: galleryUrls,
       thumbnail: this.coverImage()!.url,
+      ...(centre ? { centre } : {}),
       isEvent: this.newsType === 'Event',
       endDate: this.newsType === 'Event' ? this.endDate : undefined,
       dateGroups: resolvedGroups.length ? resolvedGroups : undefined,
@@ -319,7 +370,7 @@ export class AddNewsComponent implements OnInit, AfterViewInit {
     } else {
       const newItem: NewsItem = {
         id: this.newsService.nextId(),
-        centre: 'Madurai',
+        centre: 'Multiple Centers', // overridden by payload.centre when a centre is ticked
         ...payload,
       } as NewsItem;
       this.newsService.addNews(newItem);

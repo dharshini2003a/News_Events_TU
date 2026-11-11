@@ -72,7 +72,7 @@
     }
     @for (n of pageItems; track n.id) {
       <article class="news-row">
-        <img [src]="n.thumbnail" [alt]="n.title" loading="lazy" decoding="async" />
+        <img [src]="imgUrl(n.thumbnail)" [alt]="n.title" loading="lazy" decoding="async" />
         <div class="news-row-body">
           <div class="news-row-heading">
             <h3><a [routerLink]="['/current-news', n.id]">{{ n.title }}</a></h3>
